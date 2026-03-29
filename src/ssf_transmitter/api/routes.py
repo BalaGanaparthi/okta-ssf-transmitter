@@ -41,8 +41,15 @@ def create_blueprint(jwt_handler, key_manager):
 
     @bp.route('/api/event-types')
     def get_event_types():
-        """Get available event types"""
-        return jsonify(EVENT_TYPES)
+        """Get available event types with field schemas"""
+        from ..core import get_event_type_with_schemas, FIELD_SCHEMAS
+
+        # Return event types with resolved field schemas for dynamic UI
+        result = {}
+        for key in EVENT_TYPES.keys():
+            result[key] = get_event_type_with_schemas(key)
+
+        return jsonify(result)
 
     @bp.route('/api/config')
     def get_config():
@@ -66,7 +73,6 @@ def create_blueprint(jwt_handler, key_manager):
 
         subject = data.get('subject')
         event_type = data.get('eventType')
-        reason = data.get('reason')
 
         # Validation
         if not subject or not event_type:
@@ -76,45 +82,38 @@ def create_blueprint(jwt_handler, key_manager):
             return jsonify({'error': 'Invalid event type'}), 400
 
         try:
-            # Prepare extra fields based on event type
+            # Dynamically collect extra fields based on event type schema
+            from ..core import get_event_type_with_schemas
+
             extra_fields = {}
+            general_reason = None
+            event_type_schema = get_event_type_with_schemas(event_type)
 
-            # USER_RISK_CHANGE requires currentLevel and previousLevel
-            if event_type == 'USER_RISK_CHANGE':
-                current_level = data.get('currentLevel')
-                previous_level = data.get('previousLevel')
+            if event_type_schema and event_type_schema.get('field_definitions'):
+                for field_def in event_type_schema['field_definitions']:
+                    field_name = field_def['name']
+                    field_value = data.get(field_name)
 
-                if not current_level or not previous_level:
-                    return jsonify({
-                        'error': 'currentLevel and previousLevel are required for USER_RISK_CHANGE event'
-                    }), 400
+                    # Check required fields
+                    if field_def.get('required', False) and not field_value:
+                        return jsonify({
+                            'error': f"{field_def.get('label', field_name)} is required for {event_type} event"
+                        }), 400
 
-                extra_fields['currentRiskLevel'] = current_level
-                extra_fields['previousRiskLevel'] = previous_level
+                    # Add to extra_fields if has value
+                    if field_value:
+                        extra_fields[field_name] = field_value
 
-            # CREDENTIAL_COMPROMISE requires credential_type
-            elif event_type == 'CREDENTIAL_COMPROMISE':
-                credential_type = data.get('credentialType')
-
-                if not credential_type:
-                    return jsonify({
-                        'error': 'credentialType is required for CREDENTIAL_COMPROMISE event'
-                    }), 400
-
-                extra_fields['credential_type'] = credential_type
-
-            # IDENTIFIER_CHANGED can have new-value
-            elif event_type == 'IDENTIFIER_CHANGED':
-                new_value = data.get('newValue')
-                if new_value:
-                    extra_fields['new-value'] = new_value
+            # Check for general reason field (from textarea)
+            if 'reason' not in extra_fields:
+                general_reason = data.get('reason')
 
             # Generate SET
             event_uri = get_event_uri(event_type)
             set_token = bp.jwt_handler.generate_set(
                 event_uri,
                 subject,
-                reason,
+                general_reason,
                 extra_fields if extra_fields else None
             )
 
@@ -123,7 +122,7 @@ def create_blueprint(jwt_handler, key_manager):
             okta_client = OktaClient(config['OKTA_DOMAIN'])
             result = okta_client.send_set(set_token)
 
-            logger.info(f"Event sent: {event_type} for {subject}")
+            logger.info(f"Event sent: {event_type} for {subject} with fields: {list(extra_fields.keys())}")
             return jsonify(result)
 
         except Exception as e:

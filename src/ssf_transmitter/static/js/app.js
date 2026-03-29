@@ -125,6 +125,7 @@ function handleEventTypeChange(e) {
     const eventType = e.target.value;
     const description = document.getElementById('eventDescription');
     const dynamicFields = document.getElementById('dynamicFields');
+    const reasonFieldGroup = document.getElementById('reasonFieldGroup');
 
     if (eventType && eventTypes[eventType]) {
         description.textContent = eventTypes[eventType].description;
@@ -133,79 +134,104 @@ function handleEventTypeChange(e) {
         // Clear dynamic fields
         dynamicFields.innerHTML = '';
 
-        // Add specific fields based on event type
-        if (eventType === 'USER_RISK_CHANGE') {
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="currentLevel">
-                        <span class="label-text">Current Risk Level *</span>
-                        <span class="label-hint">Current risk level (REQUIRED)</span>
-                    </label>
-                    <div class="select-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 3.33333V16.6667M10 16.6667L15 11.6667M10 16.6667L5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <select id="currentLevel" name="currentLevel" required>
-                            <option value="">Select current level...</option>
-                            <option value="LOW">LOW</option>
-                            <option value="MEDIUM">MEDIUM</option>
-                            <option value="HIGH">HIGH</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="previousLevel">
-                        <span class="label-text">Previous Risk Level *</span>
-                        <span class="label-hint">Previous risk level (REQUIRED)</span>
-                    </label>
-                    <div class="select-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 3.33333V16.6667M10 16.6667L15 11.6667M10 16.6667L5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <select id="previousLevel" name="previousLevel" required>
-                            <option value="">Select previous level...</option>
-                            <option value="LOW">LOW</option>
-                            <option value="MEDIUM">MEDIUM</option>
-                            <option value="HIGH">HIGH</option>
-                        </select>
-                    </div>
-                </div>
-            `;
-        } else if (eventType === 'CREDENTIAL_COMPROMISE') {
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="credentialType">
-                        <span class="label-text">Credential Type *</span>
-                        <span class="label-hint">Type of credential compromised (REQUIRED)</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 3.33333V16.6667M10 16.6667L15 11.6667M10 16.6667L5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <input type="text" id="credentialType" name="credentialType" placeholder="e.g., password, token, api_key" required>
-                    </div>
-                </div>
-            `;
-        } else if (eventType === 'IDENTIFIER_CHANGED') {
-            dynamicFields.innerHTML = `
-                <div class="form-group">
-                    <label for="newValue">
-                        <span class="label-text">New Identifier Value (Optional)</span>
-                        <span class="label-hint">New email or phone number</span>
-                    </label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M2.5 6.66667L10 11.6667L17.5 6.66667M3.33333 15H16.6667C17.5871 15 18.3333 14.2538 18.3333 13.3333V6.66667C18.3333 5.74619 17.5871 5 16.6667 5H3.33333C2.41286 5 1.66667 5.74619 1.66667 6.66667V13.3333C1.66667 14.2538 2.41286 15 3.33333 15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <input type="text" id="newValue" name="newValue" placeholder="new-email@example.com">
-                    </div>
-                </div>
-            `;
+        // Generate fields dynamically based on field_definitions
+        const fieldDefinitions = eventTypes[eventType].field_definitions || [];
+        let hasReasonField = false;
+
+        if (fieldDefinitions.length > 0) {
+            fieldDefinitions.forEach(field => {
+                if (field.name === 'reason') {
+                    hasReasonField = true;
+                }
+                const fieldHtml = generateFieldHtml(field);
+                if (fieldHtml) {
+                    dynamicFields.innerHTML += fieldHtml;
+                }
+            });
+        }
+
+        // Hide general reason field if event has specific reason field
+        if (hasReasonField) {
+            reasonFieldGroup.style.display = 'none';
+        } else {
+            reasonFieldGroup.style.display = 'block';
         }
     } else {
         description.classList.remove('show');
         dynamicFields.innerHTML = '';
+        reasonFieldGroup.style.display = 'block';
     }
+}
+
+// Generate HTML for a form field based on its schema
+function generateFieldHtml(field) {
+    const required = field.required ? 'required' : '';
+    const requiredLabel = field.required ? '*' : '';
+    const requiredHint = field.required ? '(REQUIRED)' : '(Optional)';
+    const fieldId = field.name.replace(/-/g, '_').replace(/\./g, '_');
+
+    // Icon for input fields
+    const iconSvg = `
+        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3.33333V16.6667M10 16.6667L15 11.6667M10 16.6667L5 11.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    `;
+
+    let inputHtml = '';
+
+    // Generate input based on field type
+    if (field.type === 'select' && field.options) {
+        // Dropdown field
+        const optionsHtml = field.options.map(opt =>
+            `<option value="${opt.value}">${opt.label}</option>`
+        ).join('');
+
+        inputHtml = `
+            <div class="form-group">
+                <label for="${fieldId}">
+                    <span class="label-text">${field.label} ${requiredLabel}</span>
+                    <span class="label-hint">${field.hint} ${requiredHint}</span>
+                </label>
+                <div class="select-wrapper">
+                    ${iconSvg}
+                    <select id="${fieldId}" name="${field.name}" ${required}>
+                        <option value="">${field.placeholder || 'Select...'}</option>
+                        ${optionsHtml}
+                    </select>
+                </div>
+            </div>
+        `;
+    } else if (field.type === 'datetime-local') {
+        // Datetime field
+        inputHtml = `
+            <div class="form-group">
+                <label for="${fieldId}">
+                    <span class="label-text">${field.label} ${requiredLabel}</span>
+                    <span class="label-hint">${field.hint} ${requiredHint}</span>
+                </label>
+                <div class="input-wrapper">
+                    ${iconSvg}
+                    <input type="datetime-local" id="${fieldId}" name="${field.name}" ${required}>
+                </div>
+            </div>
+        `;
+    } else {
+        // Text input field
+        inputHtml = `
+            <div class="form-group">
+                <label for="${fieldId}">
+                    <span class="label-text">${field.label} ${requiredLabel}</span>
+                    <span class="label-hint">${field.hint} ${requiredHint}</span>
+                </label>
+                <div class="input-wrapper">
+                    ${iconSvg}
+                    <input type="text" id="${fieldId}" name="${field.name}" placeholder="${field.placeholder || ''}" ${required}>
+                </div>
+            </div>
+        `;
+    }
+
+    return inputHtml;
 }
 
 // Handle form submission
@@ -219,36 +245,42 @@ async function handleSubmit(e) {
     // Get form data
     const formData = {
         subject: document.getElementById('subject').value,
-        eventType: document.getElementById('eventType').value,
-        reason: document.getElementById('reason').value || null
+        eventType: document.getElementById('eventType').value
     };
 
-    // Add dynamic fields based on event type
-    if (formData.eventType === 'USER_RISK_CHANGE') {
-        formData.currentLevel = document.getElementById('currentLevel')?.value;
-        formData.previousLevel = document.getElementById('previousLevel')?.value;
-    } else if (formData.eventType === 'CREDENTIAL_COMPROMISE') {
-        formData.credentialType = document.getElementById('credentialType')?.value;
-    } else if (formData.eventType === 'IDENTIFIER_CHANGED') {
-        formData.newValue = document.getElementById('newValue')?.value || null;
+    // Get general reason field (if visible)
+    const reasonText = document.getElementById('reasonText').value;
+    if (reasonText && document.getElementById('reasonFieldGroup').style.display !== 'none') {
+        formData.reason = reasonText;
     }
 
-    // Validate
+    // Validate basic fields
     if (!formData.subject || !formData.eventType) {
         showNotification('Please fill in all required fields', 'error');
         return;
     }
 
-    // Validate event-specific required fields
-    if (formData.eventType === 'USER_RISK_CHANGE') {
-        if (!formData.currentLevel || !formData.previousLevel) {
-            showNotification('Current and Previous Risk Level are required for this event type', 'error');
-            return;
-        }
-    } else if (formData.eventType === 'CREDENTIAL_COMPROMISE') {
-        if (!formData.credentialType) {
-            showNotification('Credential Type is required for this event type', 'error');
-            return;
+    // Dynamically collect all extra fields for this event type
+    const eventTypeData = eventTypes[formData.eventType];
+    if (eventTypeData && eventTypeData.field_definitions) {
+        for (const field of eventTypeData.field_definitions) {
+            const fieldId = field.name.replace(/-/g, '_').replace(/\./g, '_');
+            const element = document.getElementById(fieldId);
+
+            if (element) {
+                const value = element.value;
+
+                // Check if required field is empty
+                if (field.required && !value) {
+                    showNotification(`${field.label} is required for this event type`, 'error');
+                    return;
+                }
+
+                // Add to formData if has value
+                if (value) {
+                    formData[field.name] = value;
+                }
+            }
         }
     }
 

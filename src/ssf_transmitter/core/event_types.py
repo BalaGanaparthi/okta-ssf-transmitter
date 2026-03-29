@@ -3,9 +3,87 @@ SSF Event Type Definitions
 
 Based on OpenID RISC (Risk and Incident Sharing and Coordination) Profile
 and Okta-specific event types.
+
+Each event type includes a schema for dynamic UI generation.
 """
 
-# Complete RISC Event Types + Okta Custom Types
+# Field schemas for dynamic UI generation
+FIELD_SCHEMAS = {
+    'currentRiskLevel': {
+        'label': 'Current Risk Level',
+        'type': 'select',
+        'hint': 'Current risk level of the user',
+        'options': [
+            {'value': 'LOW', 'label': 'Low Risk'},
+            {'value': 'MEDIUM', 'label': 'Medium Risk'},
+            {'value': 'HIGH', 'label': 'High Risk'}
+        ],
+        'placeholder': 'Select current risk level...'
+    },
+    'previousRiskLevel': {
+        'label': 'Previous Risk Level',
+        'type': 'select',
+        'hint': 'Previous risk level of the user',
+        'options': [
+            {'value': 'LOW', 'label': 'Low Risk'},
+            {'value': 'MEDIUM', 'label': 'Medium Risk'},
+            {'value': 'HIGH', 'label': 'High Risk'}
+        ],
+        'placeholder': 'Select previous risk level...'
+    },
+    'credential_type': {
+        'label': 'Credential Type',
+        'type': 'select',
+        'hint': 'Type of credential that was compromised',
+        'options': [
+            {'value': 'password', 'label': 'Password'},
+            {'value': 'token', 'label': 'Access Token'},
+            {'value': 'api_key', 'label': 'API Key'},
+            {'value': 'ssh_key', 'label': 'SSH Key'},
+            {'value': 'certificate', 'label': 'Certificate'},
+            {'value': 'session', 'label': 'Session Token'},
+            {'value': 'oauth_token', 'label': 'OAuth Token'},
+            {'value': 'bearer_token', 'label': 'Bearer Token'}
+        ],
+        'placeholder': 'Select credential type...'
+    },
+    'new-value': {
+        'label': 'New Identifier Value',
+        'type': 'text',
+        'hint': 'The new email address or phone number',
+        'placeholder': 'new-email@example.com'
+    },
+    'reason': {
+        'label': 'Reason',
+        'type': 'select',
+        'hint': 'Reason for account disability',
+        'options': [
+            {'value': 'hijacking', 'label': 'Account Hijacking'},
+            {'value': 'bulk-account', 'label': 'Bulk Account Issue'}
+        ],
+        'placeholder': 'Select reason...'
+    },
+    'event_timestamp': {
+        'label': 'Event Timestamp',
+        'type': 'datetime-local',
+        'hint': 'When the event occurred',
+        'placeholder': '2024-03-29T10:00:00'
+    },
+    'reason_admin': {
+        'label': 'Admin Reason',
+        'type': 'text',
+        'hint': 'Administrator-facing reason',
+        'placeholder': 'e.g., Detected in breach database'
+    },
+    'reason_user': {
+        'label': 'User Reason',
+        'type': 'text',
+        'hint': 'User-facing reason',
+        'placeholder': 'e.g., We detected suspicious activity'
+    }
+}
+
+# Complete RISC Event Types + Okta Custom Types with field schemas
 EVENT_TYPES = {
     # === Account Security Events ===
     'CREDENTIAL_CHANGE_REQUIRED': {
@@ -13,35 +91,42 @@ EVENT_TYPES = {
         'label': 'Credential Change Required',
         'description': 'User was required to update their credentials (e.g., password change)',
         'category': 'Account Security',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
     'CREDENTIAL_COMPROMISE': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/credential-compromise',
         'label': 'Credential Compromise',
         'description': 'A credential associated with an identifier has been compromised',
         'category': 'Account Security',
-        'fields': {'credential_type': 'required', 'reason': 'optional'}
+        'extra_fields': [
+            {'name': 'credential_type', 'required': True},
+            {'name': 'event_timestamp', 'required': False},
+            {'name': 'reason_admin', 'required': False},
+            {'name': 'reason_user', 'required': False}
+        ]
     },
     'ACCOUNT_DISABLED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/account-disabled',
         'label': 'Account Disabled',
         'description': 'Account has been deactivated due to security concerns',
         'category': 'Account Security',
-        'fields': {'reason': 'optional'}
+        'extra_fields': [
+            {'name': 'reason', 'required': False, 'note': 'Can be "hijacking" or "bulk-account"'}
+        ]
     },
     'ACCOUNT_ENABLED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/account-enabled',
         'label': 'Account Enabled',
         'description': 'Previously disabled account has been re-enabled',
         'category': 'Account Security',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
     'ACCOUNT_PURGED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/account-purged',
         'label': 'Account Purged',
         'description': 'Account has been permanently deleted',
         'category': 'Account Security',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
 
     # === Identifier Events ===
@@ -50,14 +135,16 @@ EVENT_TYPES = {
         'label': 'Identifier Changed',
         'description': 'User identifier (email/phone) has been modified',
         'category': 'Identifier Management',
-        'fields': {'new-value': 'optional', 'reason': 'optional'}
+        'extra_fields': [
+            {'name': 'new-value', 'required': False}
+        ]
     },
     'IDENTIFIER_RECYCLED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/identifier-recycled',
         'label': 'Identifier Recycled',
         'description': 'Identifier was recycled and now belongs to a new user',
         'category': 'Identifier Management',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
 
     # === Recovery Events ===
@@ -66,14 +153,14 @@ EVENT_TYPES = {
         'label': 'Recovery Activated',
         'description': 'User activated an account recovery flow',
         'category': 'Recovery',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
     'RECOVERY_INFORMATION_CHANGED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/recovery-information-changed',
         'label': 'Recovery Information Changed',
         'description': 'Recovery details (backup email/phone) have been modified',
         'category': 'Recovery',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
 
     # === Opt-In/Out Events ===
@@ -82,28 +169,28 @@ EVENT_TYPES = {
         'label': 'Opt In',
         'description': 'User opted into RISC event exchanges',
         'category': 'Opt-In/Out',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
     'OPT_OUT_INITIATED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/opt-out-initiated',
         'label': 'Opt Out Initiated',
         'description': 'User requested exclusion from RISC event sharing',
         'category': 'Opt-In/Out',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
     'OPT_OUT_CANCELLED': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/opt-out-cancelled',
         'label': 'Opt Out Cancelled',
         'description': 'User cancelled the opt-out request',
         'category': 'Opt-In/Out',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
     'OPT_OUT_EFFECTIVE': {
         'uri': 'https://schemas.openid.net/secevent/risc/event-type/opt-out-effective',
         'label': 'Opt Out Effective',
         'description': 'User was effectively opted out from RISC event exchanges',
         'category': 'Opt-In/Out',
-        'fields': {'reason': 'optional'}
+        'extra_fields': []
     },
 
     # === Session Events ===
@@ -112,7 +199,7 @@ EVENT_TYPES = {
         'label': 'Sessions Revoked (Deprecated)',
         'description': 'All sessions for the account have been revoked',
         'category': 'Session Management',
-        'fields': {'reason': 'optional'},
+        'extra_fields': [],
         'deprecated': True
     },
 
@@ -122,11 +209,10 @@ EVENT_TYPES = {
         'label': 'User Risk Change (Okta)',
         'description': 'User risk level has changed (e.g., LOW → HIGH)',
         'category': 'Okta Specific',
-        'fields': {
-            'currentRiskLevel': 'required',
-            'previousRiskLevel': 'required',
-            'reason': 'optional'
-        }
+        'extra_fields': [
+            {'name': 'currentRiskLevel', 'required': True},
+            {'name': 'previousRiskLevel', 'required': True}
+        ]
     }
 }
 
@@ -187,9 +273,22 @@ def get_event_types_by_category():
     return categories
 
 
+def get_field_schema(field_name):
+    """
+    Get field schema for UI generation
+
+    Args:
+        field_name: Name of the field
+
+    Returns:
+        dict: Field schema or None
+    """
+    return FIELD_SCHEMAS.get(field_name)
+
+
 def get_required_fields(event_type_key):
     """
-    Get required fields for an event type
+    Get required field names for an event type
 
     Args:
         event_type_key: Event type key
@@ -201,5 +300,34 @@ def get_required_fields(event_type_key):
     if not event_type:
         return []
 
-    fields = event_type.get('fields', {})
-    return [field for field, requirement in fields.items() if requirement == 'required']
+    extra_fields = event_type.get('extra_fields', [])
+    return [field['name'] for field in extra_fields if field.get('required', False)]
+
+
+def get_event_type_with_schemas(event_type_key):
+    """
+    Get event type with full field schemas for UI generation
+
+    Args:
+        event_type_key: Event type key
+
+    Returns:
+        dict: Event type with resolved field schemas
+    """
+    event_type = get_event_type(event_type_key)
+    if not event_type:
+        return None
+
+    # Clone the event type
+    result = dict(event_type)
+
+    # Add resolved field schemas
+    result['field_definitions'] = []
+    for field in event_type.get('extra_fields', []):
+        field_def = dict(field)
+        schema = get_field_schema(field['name'])
+        if schema:
+            field_def.update(schema)
+        result['field_definitions'].append(field_def)
+
+    return result
