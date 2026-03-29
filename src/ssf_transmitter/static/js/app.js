@@ -33,16 +33,53 @@ async function loadEventTypes() {
     }
 }
 
-// Populate event type dropdown
+// Populate event type dropdown with categories
 function populateEventTypes() {
     const select = document.getElementById('eventType');
-    const placeholder = select.querySelector('option[value=""]');
 
+    // Group events by category
+    const categories = {};
     Object.keys(eventTypes).forEach(key => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = eventTypes[key].label;
-        select.appendChild(option);
+        const event = eventTypes[key];
+        const category = event.category || 'Other';
+
+        if (!categories[category]) {
+            categories[category] = [];
+        }
+
+        categories[category].push({
+            key: key,
+            label: event.label,
+            deprecated: event.deprecated || false
+        });
+    });
+
+    // Sort categories
+    const sortedCategories = Object.keys(categories).sort();
+
+    // Add optgroups for each category
+    sortedCategories.forEach(category => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = category;
+
+        // Sort events within category
+        categories[category].sort((a, b) => a.label.localeCompare(b.label));
+
+        categories[category].forEach(event => {
+            const option = document.createElement('option');
+            option.value = event.key;
+            option.textContent = event.label;
+
+            // Add visual indicator for deprecated events
+            if (event.deprecated) {
+                option.textContent += ' ⚠️';
+                option.style.color = '#f59e0b';
+            }
+
+            optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
     });
 }
 

@@ -31,7 +31,10 @@ def temp_keys():
         public_key_path = Path(tmpdir) / 'public_key.pem'
 
         key_manager = KeyManager(private_key_path, public_key_path)
-        key_manager.ensure_keys_exist()
+
+        # For testing, we need to generate keys
+        # Call the private method directly
+        key_manager._generate_keys()
 
         yield key_manager
 
