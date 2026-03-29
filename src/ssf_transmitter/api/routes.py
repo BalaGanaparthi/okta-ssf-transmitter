@@ -117,10 +117,21 @@ def create_blueprint(jwt_handler, key_manager):
                 extra_fields if extra_fields else None
             )
 
+            # Decode JWT for display (without verification)
+            import jwt as pyjwt
+            decoded_payload = pyjwt.decode(set_token, options={"verify_signature": False})
+            decoded_header = pyjwt.get_unverified_header(set_token)
+
             # Send to Okta
             config = current_app.config
             okta_client = OktaClient(config['OKTA_DOMAIN'])
             result = okta_client.send_set(set_token)
+
+            # Add JWT details to response for UI display
+            result['jwt_token'] = set_token
+            result['jwt_header'] = decoded_header
+            result['jwt_payload'] = decoded_payload
+            result['okta_endpoint'] = okta_client.endpoint
 
             logger.info(f"Event sent: {event_type} for {subject} with fields: {list(extra_fields.keys())}")
             return jsonify(result)

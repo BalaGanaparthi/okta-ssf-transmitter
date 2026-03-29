@@ -265,6 +265,51 @@ textarea::placeholder {
     padding: 1rem;
 }
 
+/* JWT Display */
+.copy-btn {
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(102, 126, 234, 0.2) !important;
+    transform: translateY(-1px);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+}
+
+#openJwtIo {
+    transition: all 0.2s ease;
+}
+
+#openJwtIo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+#openJwtIo:active {
+    transform: translateY(0);
+}
+
+.jwt-section {
+    border-top: 1px solid var(--border);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+.jwt-token-display {
+    background: var(--bg-secondary);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    overflow-x: auto;
+    color: var(--text-secondary);
+    word-break: break-all;
+    border: 1px solid var(--border);
+}
+
 @keyframes slideIn {
     from {
         opacity: 0;

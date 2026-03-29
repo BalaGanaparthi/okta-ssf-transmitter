@@ -374,26 +374,123 @@ function displayResponse(result) {
                 <span class="response-label">✅ Success</span>
                 <p>Security event sent successfully to Okta.</p>
                 ${result.status ? `<p style="margin-top: 0.5rem;"><strong>Status:</strong> ${result.status}</p>` : ''}
+                ${result.okta_endpoint ? `<p><strong>Endpoint:</strong> <code style="font-size: 0.75rem;">${result.okta_endpoint}</code></p>` : ''}
                 ${result.data ? `<div class="response-data">${JSON.stringify(result.data, null, 2)}</div>` : ''}
             </div>
         `;
+
+        // Add JWT details if available
+        if (result.jwt_token) {
+            html += generateJwtDisplay(result);
+        }
     } else {
         html = `
             <div class="response-error">
                 <span class="response-label">❌ Error</span>
                 ${result.status ? `<p><strong>Status:</strong> ${result.status}</p>` : ''}
+                ${result.okta_endpoint ? `<p><strong>Endpoint:</strong> <code style="font-size: 0.75rem;">${result.okta_endpoint}</code></p>` : ''}
                 ${result.error ? `<p><strong>Error:</strong> ${typeof result.error === 'object' ? JSON.stringify(result.error) : result.error}</p>` : ''}
                 ${result.details ? `<p><strong>Details:</strong> ${result.details}</p>` : ''}
                 ${result.error && typeof result.error === 'object' ? `<div class="response-data">${JSON.stringify(result.error, null, 2)}</div>` : ''}
             </div>
         `;
+
+        // Add JWT details even for errors (to debug)
+        if (result.jwt_token) {
+            html += generateJwtDisplay(result);
+        }
     }
 
     responseContent.innerHTML = html;
     responseCard.style.display = 'block';
 
+    // Setup JWT.io button click handler
+    const jwtButton = document.getElementById('openJwtIo');
+    if (jwtButton && result.jwt_token) {
+        jwtButton.addEventListener('click', () => {
+            openInJwtIo(result.jwt_token);
+        });
+    }
+
+    // Setup copy button click handlers
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const text = e.target.dataset.copy;
+            navigator.clipboard.writeText(text).then(() => {
+                e.target.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    e.target.textContent = 'Copy';
+                }, 2000);
+            });
+        });
+    });
+
     // Scroll to response
     responseCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Generate JWT display HTML
+function generateJwtDisplay(result) {
+    const jwtToken = result.jwt_token;
+    const jwtPayload = result.jwt_payload;
+    const jwtHeader = result.jwt_header;
+
+    // Truncate token for display
+    const tokenStart = jwtToken.substring(0, 50);
+    const tokenEnd = jwtToken.substring(jwtToken.length - 50);
+
+    return `
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(148, 163, 184, 0.1);">
+            <h4 style="margin-bottom: 1rem; font-size: 1rem; font-weight: 600;">📋 JWT Details</h4>
+
+            <!-- JWT Token -->
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <strong style="font-size: 0.875rem;">Token:</strong>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="copy-btn" data-copy="${jwtToken}" style="padding: 0.25rem 0.75rem; background: rgba(102, 126, 234, 0.1); border: 1px solid var(--primary); border-radius: 6px; color: var(--primary); font-size: 0.75rem; cursor: pointer;">Copy</button>
+                        <button id="openJwtIo" style="padding: 0.25rem 0.75rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; border-radius: 6px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600;">Open in JWT.io</button>
+                    </div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 0.75rem; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.7rem; overflow-x: auto; color: var(--text-secondary); word-break: break-all;">
+                    <span style="color: #fb923c;">${tokenStart}</span><span style="opacity: 0.5;">...</span><span style="color: #fb923c;">${tokenEnd}</span>
+                </div>
+            </div>
+
+            <!-- JWT Header -->
+            <div style="margin-bottom: 1rem;">
+                <strong style="font-size: 0.875rem; display: block; margin-bottom: 0.5rem;">Header:</strong>
+                <div class="response-data" style="font-size: 0.75rem;">
+${JSON.stringify(jwtHeader, null, 2)}
+                </div>
+            </div>
+
+            <!-- JWT Payload -->
+            <div style="margin-bottom: 1rem;">
+                <strong style="font-size: 0.875rem; display: block; margin-bottom: 0.5rem;">Payload:</strong>
+                <div class="response-data" style="font-size: 0.75rem;">
+${JSON.stringify(jwtPayload, null, 2)}
+                </div>
+            </div>
+
+            <!-- HTTP Request Details -->
+            <div style="margin-bottom: 1rem;">
+                <strong style="font-size: 0.875rem; display: block; margin-bottom: 0.5rem;">HTTP Request:</strong>
+                <div style="background: var(--bg-secondary); padding: 0.75rem; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.75rem;">
+                    <span style="color: #10b981; font-weight: bold;">POST</span> ${result.okta_endpoint || 'Okta SSF Endpoint'}<br>
+                    <span style="color: #94a3b8;">Content-Type:</span> application/secevent+jwt<br>
+                    <span style="color: #94a3b8;">Body:</span> [JWT Token Above]
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Open JWT in jwt.io
+function openInJwtIo(token) {
+    // jwt.io accepts the token in the URL fragment
+    const jwtIoUrl = `https://jwt.io/#debugger-io?token=${encodeURIComponent(token)}`;
+    window.open(jwtIoUrl, '_blank');
 }
 
 // Show notification (simple implementation)
