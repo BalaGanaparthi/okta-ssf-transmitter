@@ -108,6 +108,14 @@ def create_blueprint(jwt_handler, key_manager):
             if 'reason' not in extra_fields:
                 general_reason = data.get('reason')
 
+            # Special handling for Okta events - format reason fields as language objects
+            if event_type == 'USER_RISK_CHANGE':
+                # Convert reason_admin and reason_user to language objects if present
+                if 'reason_admin' in extra_fields and isinstance(extra_fields['reason_admin'], str):
+                    extra_fields['reason_admin'] = {'en': extra_fields['reason_admin']}
+                if 'reason_user' in extra_fields and isinstance(extra_fields['reason_user'], str):
+                    extra_fields['reason_user'] = {'en': extra_fields['reason_user']}
+
             # Generate SET
             event_uri = get_event_uri(event_type)
             set_token = bp.jwt_handler.generate_set(

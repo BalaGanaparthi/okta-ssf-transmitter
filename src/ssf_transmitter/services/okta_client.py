@@ -55,16 +55,20 @@ class OktaClient:
 
         except requests.exceptions.HTTPError as e:
             logger.error(f"HTTP error sending SET: {e.response.status_code}")
+            logger.error(f"Response from Okta: {e.response.text}")
             error_data = None
             try:
                 error_data = e.response.json()
+                logger.error(f"Okta error details: {error_data}")
             except:
                 error_data = e.response.text
 
             return {
                 'success': False,
                 'status': e.response.status_code,
-                'error': error_data
+                'error': error_data,
+                'okta_response': True,  # Flag to confirm this is from Okta, not hardcoded
+                'endpoint': self.endpoint
             }
 
         except requests.exceptions.RequestException as e:

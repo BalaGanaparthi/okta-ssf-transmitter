@@ -9,25 +9,25 @@ Each event type includes a schema for dynamic UI generation.
 
 # Field schemas for dynamic UI generation
 FIELD_SCHEMAS = {
-    'currentRiskLevel': {
+    'current_level': {
         'label': 'Current Risk Level',
         'type': 'select',
         'hint': 'Current risk level of the user',
         'options': [
-            {'value': 'LOW', 'label': 'Low Risk'},
-            {'value': 'MEDIUM', 'label': 'Medium Risk'},
-            {'value': 'HIGH', 'label': 'High Risk'}
+            {'value': 'low', 'label': 'Low Risk'},
+            {'value': 'medium', 'label': 'Medium Risk'},
+            {'value': 'high', 'label': 'High Risk'}
         ],
         'placeholder': 'Select current risk level...'
     },
-    'previousRiskLevel': {
+    'previous_level': {
         'label': 'Previous Risk Level',
         'type': 'select',
         'hint': 'Previous risk level of the user',
         'options': [
-            {'value': 'LOW', 'label': 'Low Risk'},
-            {'value': 'MEDIUM', 'label': 'Medium Risk'},
-            {'value': 'HIGH', 'label': 'High Risk'}
+            {'value': 'low', 'label': 'Low Risk'},
+            {'value': 'medium', 'label': 'Medium Risk'},
+            {'value': 'high', 'label': 'High Risk'}
         ],
         'placeholder': 'Select previous risk level...'
     },
@@ -65,20 +65,31 @@ FIELD_SCHEMAS = {
     },
     'event_timestamp': {
         'label': 'Event Timestamp',
-        'type': 'datetime-local',
-        'hint': 'When the event occurred',
-        'placeholder': '2024-03-29T10:00:00'
+        'type': 'number',
+        'hint': 'When the event occurred (Unix timestamp)',
+        'placeholder': 'e.g., 1711699200'
+    },
+    'initiating_entity': {
+        'label': 'Initiating Entity',
+        'type': 'select',
+        'hint': 'Who initiated this event',
+        'options': [
+            {'value': 'admin', 'label': 'Administrator'},
+            {'value': 'system', 'label': 'System'},
+            {'value': 'user', 'label': 'User'}
+        ],
+        'placeholder': 'Select entity...'
     },
     'reason_admin': {
         'label': 'Admin Reason',
         'type': 'text',
-        'hint': 'Administrator-facing reason',
-        'placeholder': 'e.g., Detected in breach database'
+        'hint': 'Administrator-facing reason (English)',
+        'placeholder': 'e.g., critical security activity detected'
     },
     'reason_user': {
         'label': 'User Reason',
         'type': 'text',
-        'hint': 'User-facing reason',
+        'hint': 'User-facing reason (English)',
         'placeholder': 'e.g., We detected suspicious activity'
     }
 }
@@ -207,11 +218,15 @@ EVENT_TYPES = {
     'USER_RISK_CHANGE': {
         'uri': 'https://schemas.okta.com/secevent/okta/event-type/user-risk-change',
         'label': 'User Risk Change (Okta)',
-        'description': 'User risk level has changed (e.g., LOW → HIGH)',
+        'description': 'User risk level has changed (e.g., low → high)',
         'category': 'Okta Specific',
         'extra_fields': [
-            {'name': 'currentRiskLevel', 'required': True},
-            {'name': 'previousRiskLevel', 'required': True}
+            {'name': 'current_level', 'required': True},
+            {'name': 'previous_level', 'required': True},
+            {'name': 'event_timestamp', 'required': False},
+            {'name': 'initiating_entity', 'required': False},
+            {'name': 'reason_admin', 'required': False},
+            {'name': 'reason_user', 'required': False}
         ]
     }
 }

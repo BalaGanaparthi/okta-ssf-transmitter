@@ -14,12 +14,12 @@ def test_user_risk_change_mapping(jwt_handler):
     event_type = 'USER_RISK_CHANGE'
     schema = get_event_type_with_schemas(event_type)
 
-    # Simulate UI input
+    # Simulate UI input (using correct field names for Okta)
     ui_data = {
         'subject': 'test@example.com',
         'eventType': event_type,
-        'currentRiskLevel': 'HIGH',
-        'previousRiskLevel': 'LOW',
+        'current_level': 'high',  # Okta expects lowercase
+        'previous_level': 'low',   # Okta expects lowercase
         'reason': 'Impossible travel detected'
     }
 
@@ -43,15 +43,17 @@ def test_user_risk_change_mapping(jwt_handler):
     decoded = pyjwt.decode(token, options={"verify_signature": False})
     event_data = decoded['events'][event_uri]
 
-    # Verify fields are in JWT
-    assert 'currentRiskLevel' in event_data, "currentRiskLevel missing in JWT payload"
-    assert event_data['currentRiskLevel'] == 'HIGH', "currentRiskLevel value incorrect"
-    assert 'previousRiskLevel' in event_data, "previousRiskLevel missing in JWT payload"
-    assert event_data['previousRiskLevel'] == 'LOW', "previousRiskLevel value incorrect"
+    # Verify fields are in JWT (using correct Okta field names)
+    assert 'current_level' in event_data, "current_level missing in JWT payload"
+    assert event_data['current_level'] == 'high', "current_level value incorrect"
+    assert 'previous_level' in event_data, "previous_level missing in JWT payload"
+    assert event_data['previous_level'] == 'low', "previous_level value incorrect"
     assert event_data['reason'] == 'Impossible travel detected'
 
     print("✅ USER_RISK_CHANGE: UI → JWT mapping correct")
     print(f"   Fields in JWT: {list(event_data.keys())}")
+    print(f"   current_level: {event_data['current_level']}")
+    print(f"   previous_level: {event_data['previous_level']}")
 
 
 def test_credential_compromise_mapping(jwt_handler):
