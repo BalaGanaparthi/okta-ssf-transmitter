@@ -1,0 +1,70 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.code-workspace
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Example files
+ssf-transmitter-example.js
+ssf-transmitter-example.py
+package.json
+package-lock.json
+node_modules/
+
+# Postman
+SSF_Postman_Collection.json
+
+# Local keys (will be generated in container)
+certs/*.pem
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.*
+
+# Old structure (if any)
+templates/
+static/
+app.py
+test_app.py
+run.sh

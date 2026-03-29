@@ -1,0 +1,94 @@
+╔══════════════════════════════════════════════════════════════╗
+║                  SSF TRANSMITTER UI PREVIEW                  ║
+╚══════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────┐
+│  ★ ✦ ⋆   [Animated Starfield Background]    ⋆ ✦ ★         │
+│                                                              │
+│  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  │
+│  ┃  📡 SSF Transmitter              ● Ready            ┃  │
+│  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │   Security Event Portal                                │ │
+│  │   Send security event tokens to Okta using the        │ │
+│  │   Shared Signals Framework.                            │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │   👤 User Email                                        │ │
+│  │   Subject of the security event                       │ │
+│  │   ┌──────────────────────────────────────────────────┐ │ │
+│  │   │ 📧 user@example.com                              │ │ │
+│  │   └──────────────────────────────────────────────────┘ │ │
+│  │                                                        │ │
+│  │   ⚡ Event Type                                        │ │
+│  │   Type of security event to report                    │ │
+│  │   ┌──────────────────────────────────────────────────┐ │ │
+│  │   │ ⬇️ Credential Change Required                    ▼│ │ │
+│  │   └──────────────────────────────────────────────────┘ │ │
+│  │   ┌──────────────────────────────────────────────────┐ │ │
+│  │   │ ℹ️ User credentials are compromised and need     │ │ │
+│  │   │   to be changed                                  │ │ │
+│  │   └──────────────────────────────────────────────────┘ │ │
+│  │                                                        │ │
+│  │   ✏️  Reason (Optional)                                │ │
+│  │   Explain why this event is being reported            │ │
+│  │   ┌──────────────────────────────────────────────────┐ │ │
+│  │   │ Password found in data breach                    │ │ │
+│  │   │                                                  │ │ │
+│  │   └──────────────────────────────────────────────────┘ │ │
+│  │                                                        │ │
+│  │   ┌──────────────────────────────────────────────────┐ │ │
+│  │   │       🚀 Send Security Event                      │ │ │
+│  │   └──────────────────────────────────────────────────┘ │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │   ⚙️  Configuration                                    │ │
+│  │   ┌──────────────────────────────────────────────────┐ │ │
+│  │   │ Issuer      https://your-app.railway.app         │ │ │
+│  │   ├──────────────────────────────────────────────────┤ │ │
+│  │   │ Okta Domain https://your-org.okta.com            │ │ │
+│  │   ├──────────────────────────────────────────────────┤ │ │
+│  │   │ Key ID      transmitter-key-1                    │ │ │
+│  │   ├──────────────────────────────────────────────────┤ │ │
+│  │   │ JWKS URL    https://your-app.railway.app/...     │ │ │
+│  │   └──────────────────────────────────────────────────┘ │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  Powered by Shared Signals Framework | View JWKS | Health   │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+DESIGN FEATURES:
+═════════════════
+
+🎨 Visual Elements:
+  • Animated starfield background
+  • Glassmorphism effect on cards
+  • Gradient buttons (purple-blue)
+  • Smooth hover animations
+  • Pulsing status indicator
+  • Slide-in transitions
+
+🎯 Color Scheme:
+  • Primary: #667eea (Purple-Blue)
+  • Secondary: #764ba2 (Purple)
+  • Success: #10b981 (Green)
+  • Error: #ef4444 (Red)
+  • Dark theme background
+
+📱 Responsive:
+  • Mobile-optimized
+  • Desktop-friendly
+  • Touch controls
+  • Flexible layouts
+
+✨ Interactions:
+  • Real-time validation
+  • Success/error messages
+  • Loading spinners
+  • Status updates
+  • Response displays
+

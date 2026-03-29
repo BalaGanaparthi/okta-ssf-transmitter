@@ -1,0 +1,307 @@
+{
+  "info": {
+    "name": "Okta SSF Integration",
+    "description": "Complete Postman collection for Okta Shared Signals Framework (SSF) - both Receiver setup and Transmitter operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "oktaDomain",
+      "value": "https://your-org.okta.com",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "YOUR_OKTA_API_TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "issuerURL",
+      "value": "https://mysystem.example.com",
+      "type": "string"
+    },
+    {
+      "key": "jwksUrl",
+      "value": "https://mysystem.example.com/.well-known/jwks.json",
+      "type": "string"
+    },
+    {
+      "key": "providerId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Part 1: Okta Receiver Setup",
+      "item": [
+        {
+          "name": "1. Create Security Events Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Security System Provider\",\n  \"issuer\": \"{{issuerURL}}\",\n  \"jwks\": {\n    \"keys\": [\n      {\n        \"kty\": \"RSA\",\n        \"use\": \"sig\",\n        \"kid\": \"transmitter-key-1\",\n        \"alg\": \"RS256\",\n        \"n\": \"YOUR_PUBLIC_KEY_N_VALUE\",\n        \"e\": \"AQAB\"\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers"]
+            },
+            "description": "Register your system as an SSF provider in Okta. Save the 'id' from the response to the 'providerId' variable."
+          },
+          "response": []
+        },
+        {
+          "name": "1b. Create Provider (SSF Compliant with Well-Known)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Security System Provider\",\n  \"wellKnownConfigurationUrl\": \"{{issuerURL}}/.well-known/ssf-configuration\"\n}"
+            },
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers"]
+            },
+            "description": "Alternative method: Create provider using SSF-compliant well-known configuration URL"
+          },
+          "response": []
+        },
+        {
+          "name": "2. List All Security Events Providers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers"]
+            },
+            "description": "Retrieve all configured SSF providers"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Specific Provider",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers/{{providerId}}",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers", "{{providerId}}"]
+            },
+            "description": "Get details of a specific provider by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Update Provider",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Security System Name\"\n}"
+            },
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers/{{providerId}}",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers", "{{providerId}}"]
+            },
+            "description": "Update provider configuration"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Deactivate Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers/{{providerId}}/lifecycle/deactivate",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers", "{{providerId}}", "lifecycle", "deactivate"]
+            },
+            "description": "Deactivate a provider (stops accepting SETs)"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Delete Provider",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "SSWS {{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{oktaDomain}}/api/v1/security-events-providers/{{providerId}}",
+              "host": ["{{oktaDomain}}"],
+              "path": ["api", "v1", "security-events-providers", "{{providerId}}"]
+            },
+            "description": "Permanently delete a provider"
+          },
+          "response": []
+        }
+      ],
+      "description": "APIs for configuring Okta as an SSF Receiver"
+    },
+    {
+      "name": "Part 2: Transmit Risk Signals",
+      "item": [
+        {
+          "name": "Send SET - Credential Change Required",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/secevent+jwt",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "eyJhbGciOiJSUzI1NiIsImtpZCI6InRyYW5zbWl0dGVyLWtleS0xIiwidHlwIjoic2VjZXZlbnQrand0In0.eyJpc3MiOiJodHRwczovL215c3lzdGVtLmV4YW1wbGUuY29tIiwianRpIjoidW5pcXVlLWV2ZW50LWlkLTEyMzQ1IiwiaWF0IjoxNzExMjc2ODAwLCJhdWQiOiJodHRwczovL3lvdXItb3JnLm9rdGEuY29tIiwiZXZlbnRzIjp7Imh0dHBzOi8vc2NoZW1hcy5vcGVuaWQubmV0L3NlY2V2ZW50L3Jpc2MvZXZlbnQtdHlwZS9hY2NvdW50LWNyZWRlbnRpYWwtY2hhbmdlLXJlcXVpcmVkIjp7InN1YmplY3QiOnsiZm9ybWF0IjoiZW1haWwiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20ifSwicmVhc29uIjoiUGFzc3dvcmQgY29tcHJvbWlzZWQgaW4gZGF0YSBicmVhY2gifX19.SIGNATURE_HERE"
+            },
+            "url": {
+              "raw": "{{oktaDomain}}/security/api/v1/security-events",
+              "host": ["{{oktaDomain}}"],
+              "path": ["security", "api", "v1", "security-events"]
+            },
+            "description": "Send a SET indicating user credentials need to be changed. \n\nIMPORTANT: Replace the JWT in the body with your actual signed token. Use the code examples to generate proper tokens."
+          },
+          "response": []
+        },
+        {
+          "name": "Send SET - Account Disabled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/secevent+jwt",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "eyJhbGciOiJSUzI1NiIsImtpZCI6InRyYW5zbWl0dGVyLWtleS0xIiwidHlwIjoic2VjZXZlbnQrand0In0.eyJpc3MiOiJodHRwczovL215c3lzdGVtLmV4YW1wbGUuY29tIiwianRpIjoidW5pcXVlLWV2ZW50LWlkLTY3ODkwIiwiaWF0IjoxNzExMjc2ODAwLCJhdWQiOiJodHRwczovL3lvdXItb3JnLm9rdGEuY29tIiwiZXZlbnRzIjp7Imh0dHBzOi8vc2NoZW1hcy5vcGVuaWQubmV0L3NlY2V2ZW50L3Jpc2MvZXZlbnQtdHlwZS9hY2NvdW50LWRpc2FibGVkIjp7InN1YmplY3QiOnsiZm9ybWF0IjoiZW1haWwiLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20ifSwicmVhc29uIjoiU3VzcGljaW91cyBsb2dpbiBhY3Rpdml0eSBkZXRlY3RlZCJ9fX0.SIGNATURE_HERE"
+            },
+            "url": {
+              "raw": "{{oktaDomain}}/security/api/v1/security-events",
+              "host": ["{{oktaDomain}}"],
+              "path": ["security", "api", "v1", "security-events"]
+            },
+            "description": "Request Okta to disable a user account due to security concerns.\n\nIMPORTANT: Replace the JWT in the body with your actual signed token."
+          },
+          "response": []
+        },
+        {
+          "name": "Send SET - Account Enabled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/secevent+jwt",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "eyJhbGciOiJSUzI1NiIsImtpZCI6InRyYW5zbWl0dGVyLWtleS0xIiwidHlwIjoic2VjZXZlbnQrand0In0.eyJpc3MiOiJodHRwczovL215c3lzdGVtLmV4YW1wbGUuY29tIiwianRpIjoidW5pcXVlLWV2ZW50LWlkLTExMTIxIiwiaWF0IjoxNzExMjc2ODAwLCJhdWQiOiJodHRwczovL3lvdXItb3JnLm9rdGEuY29tIiwiZXZlbnRzIjp7Imh0dHBzOi8vc2NoZW1hcy5vcGVuaWQubmV0L3NlY2V2ZW50L3Jpc2MvZXZlbnQtdHlwZS9hY2NvdW50LWVuYWJsZWQiOnsic3ViamVjdCI6eyJmb3JtYXQiOiJlbWFpbCIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSJ9LCJyZWFzb24iOiJJbnZlc3RpZ2F0aW9uIGNvbXBsZXRlZCAtIGFjY291bnQgaXMgc2FmZSJ9fX0.SIGNATURE_HERE"
+            },
+            "url": {
+              "raw": "{{oktaDomain}}/security/api/v1/security-events",
+              "host": ["{{oktaDomain}}"],
+              "path": ["security", "api", "v1", "security-events"]
+            },
+            "description": "Notify Okta that a previously disabled account can be re-enabled.\n\nIMPORTANT: Replace the JWT in the body with your actual signed token."
+          },
+          "response": []
+        }
+      ],
+      "description": "APIs for transmitting Security Event Tokens to Okta"
+    },
+    {
+      "name": "Testing & Utilities",
+      "item": [
+        {
+          "name": "Decode JWT (for debugging)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://jwt.io",
+              "protocol": "https",
+              "host": ["jwt", "io"]
+            },
+            "description": "Use jwt.io to decode and inspect your JWTs during development"
+          },
+          "response": []
+        }
+      ],
+      "description": "Helper requests for testing and debugging"
+    }
+  ]
+}
