@@ -1,0 +1,49 @@
+ssf-transmitter/
+├── 📱 src/ssf_transmitter/        Application Code
+│   ├── api/                       API routes
+│   ├── core/                      Business logic (JWT, keys, events)
+│   ├── services/                  Okta client
+│   ├── utils/                     Validators
+│   ├── templates/                 HTML
+│   ├── static/                    CSS, JS
+│   ├── app.py                     Flask factory
+│   └── config.py                  Configuration
+│
+├── 🧪 tests/                      Test Suite (24 tests)
+│   ├── test_api.py                API tests
+│   ├── test_core.py               Core tests
+│   ├── test_datetime_conversion.py DateTime tests
+│   ├── test_event_mapping.py      Event mapping tests
+│   └── conftest.py                Test fixtures
+│
+├── 📜 scripts/                    Utility Scripts
+│   ├── dev.sh                     Development server
+│   ├── start.sh                   Production server
+│   ├── test.sh                    Test runner
+│   └── reregister-okta.sh         Okta re-registration
+│
+├── 🔐 certs/                      Certificates
+│   ├── private_key.pem            RSA private key (for signing)
+│   ├── public_key.pem             RSA public key (for JWKS)
+│   └── README.md                  Certificate docs
+│
+├── 📚 docs/                       Documentation
+│   ├── README.md                  Docs index
+│   ├── COMPLETE_SETUP_GUIDE.md    Complete setup guide
+│   ├── RAILWAY_DEPLOYMENT.md      Railway deployment
+│   ├── SSF_EVENT_TYPES_GUIDE.md   Event types reference
+│   ├── ARCHITECTURE.md            System architecture
+│   ├── examples/                  Example files
+│   └── ... (20+ other guides)
+│
+├── 🐳 Dockerfile                  Docker configuration
+├── 🚂 railway.toml                Railway configuration
+├── 🐍 wsgi.py                     WSGI entry point
+├── 📦 requirements.txt            Python dependencies
+├── ⚙️  setup.py                    Package setup
+├── 🧪 pytest.ini                  Test configuration
+├── 🛠️  Makefile                    Build automation
+├── 🔧 .env.example                Environment template
+├── 📖 README.md                   Main documentation
+├── .gitignore                    Git ignore rules
+└── .dockerignore                 Docker ignore rules

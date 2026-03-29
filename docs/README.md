@@ -1,53 +1,38 @@
 # Documentation
 
-## Quick Navigation
+Complete documentation for the SSF Transmitter application.
 
-### Getting Started
-- **[Quick Start Guide](QUICK_START.md)** - Get running in minutes
-- **[API Documentation](README_WEB_APP.md)** - Complete feature guide
-- **[Project Summary](PROJECT_SUMMARY.md)** - What was built
+## 🚀 Getting Started
 
-### Deployment
-- **[Railway Deployment](RAILWAY_DEPLOYMENT.md)** - Deploy to Railway.com
-- **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Step-by-step checklist
+**New users start here:**
+- [Complete Setup Guide](COMPLETE_SETUP_GUIDE.md) - End-to-end setup, deployment, and testing
+- [Quick Start](QUICK_START.md) - Get running in minutes
 
-### Configuration
-- **[Okta Setup Guide](SSF_SETUP_GUIDE.md)** - Configure Okta SSF receiver
+## 📖 Deployment
 
-## Documentation Structure
+- [Railway Deployment](RAILWAY_DEPLOYMENT.md) - Deploy to Railway.com
+- [Deployment Checklist](DEPLOYMENT_CHECKLIST.md) - Step-by-step checklist
 
-```
-docs/
-├── README.md                    # This file
-├── QUICK_START.md              # Quick start guide
-├── README_WEB_APP.md           # Complete application guide
-├── RAILWAY_DEPLOYMENT.md       # Railway deployment guide
-├── DEPLOYMENT_CHECKLIST.md     # Deployment checklist
-├── PROJECT_SUMMARY.md          # Project overview
-└── SSF_SETUP_GUIDE.md          # Okta configuration guide
-```
+## 📚 Reference
 
-## What's What
+- [Event Types Guide](SSF_EVENT_TYPES_GUIDE.md) - All 15 RISC event types
+- [Architecture](ARCHITECTURE.md) - System design and structure
+- [API Documentation](README_WEB_APP.md) - API endpoints and usage
 
-### For First-Time Users
-Start here:
-1. [Quick Start Guide](QUICK_START.md)
-2. [API Documentation](README_WEB_APP.md)
+## 🔧 Okta Configuration
 
-### For Deployment
-Follow these in order:
-1. [Railway Deployment](RAILWAY_DEPLOYMENT.md)
-2. [Deployment Checklist](DEPLOYMENT_CHECKLIST.md)
-3. [Okta Setup Guide](SSF_SETUP_GUIDE.md)
+- [SSF Setup Guide](SSF_SETUP_GUIDE.md) - Configure Okta as SSF receiver
 
-### For Understanding
-Read these for context:
-1. [Project Summary](PROJECT_SUMMARY.md)
-2. [API Documentation](README_WEB_APP.md)
+## 📁 Examples
 
-## Additional Resources
+Example files for reference:
+- [examples/](examples/) - Original example scripts and Postman collection
 
-- Main README: [../README.md](../README.md)
-- Okta Developer Docs: https://developer.okta.com/
-- OpenID Shared Signals: https://openid.net/wg/sharedsignals/
-- Flask Documentation: https://flask.palletsprojects.com/
+---
+
+## Quick Links
+
+- **Setup:** [COMPLETE_SETUP_GUIDE.md](COMPLETE_SETUP_GUIDE.md)
+- **Deploy:** [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+- **Events:** [SSF_EVENT_TYPES_GUIDE.md](SSF_EVENT_TYPES_GUIDE.md)
+- **Architecture:** [ARCHITECTURE.md](ARCHITECTURE.md)
