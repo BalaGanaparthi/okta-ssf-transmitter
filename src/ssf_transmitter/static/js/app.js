@@ -263,12 +263,18 @@ async function handleSubmit(e) {
     // Dynamically collect all extra fields for this event type
     const eventTypeData = eventTypes[formData.eventType];
     if (eventTypeData && eventTypeData.field_definitions) {
+        console.log('Event type data:', eventTypeData);
+        console.log('Field definitions:', eventTypeData.field_definitions);
+
         for (const field of eventTypeData.field_definitions) {
             const fieldId = field.name.replace(/-/g, '_').replace(/\./g, '_');
             const element = document.getElementById(fieldId);
 
+            console.log(`Collecting field: ${field.name}, ID: ${fieldId}, Element:`, element);
+
             if (element) {
                 const value = element.value;
+                console.log(`  Value: ${value}`);
 
                 // Check if required field is empty
                 if (field.required && !value) {
@@ -279,8 +285,31 @@ async function handleSubmit(e) {
                 // Add to formData if has value
                 if (value) {
                     formData[field.name] = value;
+                    console.log(`  Added to formData: ${field.name} = ${value}`);
                 }
+            } else {
+                console.log(`  Element not found!`);
             }
+        }
+    }
+
+    console.log('Final formData to send:', formData);
+
+    // Debug: First send to debug endpoint to see what we're sending
+    if (window.location.search.includes('debug')) {
+        console.log('Debug mode: sending to debug endpoint');
+        try {
+            const debugResponse = await fetch('/api/debug-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const debugData = await debugResponse.json();
+            console.log('Debug response:', debugData);
+            alert('Debug mode - check console for details');
+            return;
+        } catch (e) {
+            console.error('Debug error:', e);
         }
     }
 

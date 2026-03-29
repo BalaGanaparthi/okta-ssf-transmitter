@@ -176,4 +176,77 @@ def create_blueprint(jwt_handler, key_manager):
                 'error': str(e)
             }), 500
 
+    @bp.route('/api/debug-event', methods=['POST'])
+    def debug_event():
+        """Debug endpoint - shows what JWT would be generated (doesn't send to Okta)"""
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        subject = data.get('subject')
+        event_type = data.get('eventType')
+
+        if not subject or not event_type:
+            return jsonify({'error': 'Subject and event type are required'}), 400
+
+        if not validate_event_type(event_type):
+            return jsonify({'error': 'Invalid event type'}), 400
+
+        try:
+            # Log what we received
+            logger.info(f"Debug - Received data: {data}")
+
+            # Dynamically collect extra fields
+            from ..core import get_event_type_with_schemas
+
+            extra_fields = {}
+            general_reason = None
+            event_type_schema = get_event_type_with_schemas(event_type)
+
+            if event_type_schema and event_type_schema.get('field_definitions'):
+                for field_def in event_type_schema['field_definitions']:
+                    field_name = field_def['name']
+                    field_value = data.get(field_name)
+
+                    logger.info(f"Debug - Field {field_name}: {field_value}")
+
+                    if field_value:
+                        extra_fields[field_name] = field_value
+
+            if 'reason' not in extra_fields:
+                general_reason = data.get('reason')
+
+            logger.info(f"Debug - Extra fields: {extra_fields}")
+            logger.info(f"Debug - General reason: {general_reason}")
+
+            # Generate SET
+            event_uri = get_event_uri(event_type)
+            set_token = bp.jwt_handler.generate_set(
+                event_uri,
+                subject,
+                general_reason,
+                extra_fields if extra_fields else None
+            )
+
+            # Decode to show payload
+            import jwt
+            decoded = jwt.decode(set_token, options={"verify_signature": False})
+
+            return jsonify({
+                'status': 'debug',
+                'received_data': data,
+                'extra_fields_collected': extra_fields,
+                'general_reason': general_reason,
+                'jwt_payload': decoded,
+                'message': 'JWT generated successfully (not sent to Okta)'
+            })
+
+        except Exception as e:
+            logger.error(f"Debug error: {str(e)}", exc_info=True)
+            return jsonify({
+                'status': 'error',
+                'error': str(e)
+            }), 500
+
     return bp
