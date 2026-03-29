@@ -202,7 +202,15 @@ function generateFieldHtml(field) {
             </div>
         `;
     } else if (field.type === 'datetime-local') {
-        // Datetime field
+        // Datetime field - set default to current time
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const defaultValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+
         inputHtml = `
             <div class="form-group">
                 <label for="${fieldId}">
@@ -211,7 +219,10 @@ function generateFieldHtml(field) {
                 </label>
                 <div class="input-wrapper">
                     ${iconSvg}
-                    <input type="datetime-local" id="${fieldId}" name="${field.name}" ${required}>
+                    <input type="datetime-local" id="${fieldId}" name="${field.name}" value="${defaultValue}" ${required}>
+                </div>
+                <div style="margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-secondary); padding-left: 2.5rem;">
+                    💡 Will be converted to Unix timestamp before sending to Okta
                 </div>
             </div>
         `;
@@ -482,8 +493,53 @@ ${JSON.stringify(jwtPayload, null, 2)}
                     <span style="color: #94a3b8;">Body:</span> [JWT Token Above]
                 </div>
             </div>
+
+            ${generateCollectedFieldsInfo(result)}
         </div>
     `;
+}
+
+// Generate collected fields info (for debugging)
+function generateCollectedFieldsInfo(result) {
+    if (!result.collected_fields) return '';
+
+    const fields = result.collected_fields;
+    const hasTimestamp = fields.extra_fields && fields.extra_fields.event_timestamp;
+
+    if (!hasTimestamp && Object.keys(fields.extra_fields || {}).length === 0) return '';
+
+    let html = `
+        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--success); border-radius: 8px;">
+            <strong style="font-size: 0.875rem; display: block; margin-bottom: 0.5rem;">🔍 Field Processing:</strong>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+    `;
+
+    if (hasTimestamp) {
+        const timestamp = fields.extra_fields.event_timestamp;
+        const date = new Date(timestamp * 1000);
+        html += `
+            <div style="margin-bottom: 0.25rem;">
+                ⏰ <strong>event_timestamp</strong>: Converted to Unix timestamp
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;Value: ${timestamp} (${date.toLocaleString()})
+            </div>
+        `;
+    }
+
+    const extraFieldCount = Object.keys(fields.extra_fields || {}).length;
+    if (extraFieldCount > 0) {
+        html += `
+            <div style="margin-top: 0.25rem;">
+                ✅ Collected ${extraFieldCount} extra field(s): ${Object.keys(fields.extra_fields).join(', ')}
+            </div>
+        `;
+    }
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    return html;
 }
 
 // Open JWT in jwt.io

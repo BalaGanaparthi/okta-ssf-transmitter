@@ -65,9 +65,10 @@ FIELD_SCHEMAS = {
     },
     'event_timestamp': {
         'label': 'Event Timestamp',
-        'type': 'number',
-        'hint': 'When the event occurred (Unix timestamp)',
-        'placeholder': 'e.g., 1711699200'
+        'type': 'datetime-local',
+        'hint': 'When the event occurred',
+        'placeholder': '',
+        'convert_to': 'unix_timestamp'  # Flag to convert datetime to Unix timestamp
     },
     'initiating_entity': {
         'label': 'Initiating Entity',

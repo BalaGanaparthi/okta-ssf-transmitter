@@ -102,6 +102,21 @@ def create_blueprint(jwt_handler, key_manager):
 
                     # Add to extra_fields if has value
                     if field_value:
+                        # Convert datetime-local to Unix timestamp if needed
+                        if field_def.get('convert_to') == 'unix_timestamp':
+                            try:
+                                from datetime import datetime
+                                # Parse datetime string (format: "2024-03-29T10:30")
+                                dt = datetime.fromisoformat(field_value)
+                                # Convert to Unix timestamp
+                                field_value = int(dt.timestamp())
+                                logger.info(f"Converted {field_name} to Unix timestamp: {field_value}")
+                            except Exception as e:
+                                logger.error(f"Failed to convert {field_name} to timestamp: {e}")
+                                return jsonify({
+                                    'error': f"Invalid datetime format for {field_def.get('label', field_name)}"
+                                }), 400
+
                         extra_fields[field_name] = field_value
 
             # Check for general reason field (from textarea)
@@ -140,6 +155,14 @@ def create_blueprint(jwt_handler, key_manager):
             result['jwt_header'] = decoded_header
             result['jwt_payload'] = decoded_payload
             result['okta_endpoint'] = okta_client.endpoint
+
+            # Add info about collected fields for debugging
+            result['collected_fields'] = {
+                'subject': subject,
+                'event_type': event_type,
+                'extra_fields': extra_fields,
+                'general_reason': general_reason
+            }
 
             logger.info(f"Event sent: {event_type} for {subject} with fields: {list(extra_fields.keys())}")
             return jsonify(result)
