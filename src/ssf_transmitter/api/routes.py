@@ -100,4 +100,43 @@ def create_blueprint(jwt_handler, key_manager):
         """Health check endpoint"""
         return jsonify({'status': 'healthy'})
 
+    @bp.route('/api/verify-keys')
+    def verify_keys():
+        """Verify which keys are being used (for debugging)"""
+        try:
+            import hashlib
+
+            # Get public key
+            public_key = bp.key_manager.get_public_key()
+
+            # Get public key bytes
+            from cryptography.hazmat.primitives import serialization
+            public_key_bytes = public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+
+            # Calculate fingerprint (SHA256 of public key)
+            fingerprint = hashlib.sha256(public_key_bytes).hexdigest()
+
+            # Get JWKS
+            config = current_app.config
+            jwks = bp.key_manager.get_jwks(config['KEY_ID'])
+
+            return jsonify({
+                'status': 'success',
+                'key_id': config['KEY_ID'],
+                'public_key_fingerprint': fingerprint,
+                'public_key_sha256_short': fingerprint[:16] + '...',
+                'jwks_kid': jwks['keys'][0]['kid'],
+                'jwks_n_length': len(jwks['keys'][0]['n']),
+                'message': 'Keys are loaded and valid',
+                'note': 'Compare this fingerprint with Okta registration to verify keys match'
+            })
+        except Exception as e:
+            return jsonify({
+                'status': 'error',
+                'error': str(e)
+            }), 500
+
     return bp

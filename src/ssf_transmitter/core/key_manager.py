@@ -29,16 +29,41 @@ class KeyManager:
         self._public_key = None
 
     def ensure_keys_exist(self):
-        """Generate RSA key pair if they don't exist"""
+        """Verify RSA key pair exists - DO NOT auto-generate"""
         # Create directory if needed
         self.private_key_path.parent.mkdir(parents=True, exist_ok=True)
 
         if not self.private_key_path.exists() or not self.public_key_path.exists():
-            logger.info("Generating new RSA key pair...")
-            self._generate_keys()
-            logger.info("Keys generated successfully")
+            logger.error("=" * 70)
+            logger.error("CRITICAL ERROR: RSA keys not found!")
+            logger.error("=" * 70)
+            logger.error(f"Private key path: {self.private_key_path}")
+            logger.error(f"Public key path: {self.public_key_path}")
+            logger.error("")
+            logger.error("Keys are required and MUST be in the certs/ folder.")
+            logger.error("Keys should be committed to git and deployed with the app.")
+            logger.error("")
+            logger.error("If you need to generate keys manually:")
+            logger.error("  openssl genrsa -out certs/private_key.pem 2048")
+            logger.error("  openssl rsa -in certs/private_key.pem -pubout -out certs/public_key.pem")
+            logger.error("=" * 70)
+            raise FileNotFoundError(
+                f"RSA keys not found at {self.private_key_path} and {self.public_key_path}. "
+                "Keys must exist in certs/ folder and be deployed with the application."
+            )
         else:
-            logger.info("Keys already exist")
+            logger.info("✓ Keys found in certs/ folder")
+            logger.info(f"  Private key: {self.private_key_path}")
+            logger.info(f"  Public key: {self.public_key_path}")
+
+            # Verify keys are valid
+            try:
+                self.get_private_key()
+                self.get_public_key()
+                logger.info("✓ Keys validated successfully")
+            except Exception as e:
+                logger.error(f"✗ Keys exist but are invalid: {e}")
+                raise
 
     def _generate_keys(self):
         """Generate new RSA key pair"""
