@@ -49,10 +49,9 @@ node_modules/
 # Postman
 SSF_Postman_Collection.json
 
-# Local keys (will be generated in container)
-certs/*.pem
-*.pem
-*.key
+# IMPORTANT: certs/ folder MUST be included in Docker build
+# Keys are required and should be deployed with the application
+# DO NOT ignore certs/*.pem
 
 # Logs
 *.log

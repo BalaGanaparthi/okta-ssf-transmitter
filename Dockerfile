@@ -20,8 +20,8 @@ COPY src/ src/
 COPY wsgi.py .
 COPY scripts/ scripts/
 
-# Create certs directory (keys will be generated on startup if not present)
-RUN mkdir -p certs
+# IMPORTANT: Copy certificates (required for JWT signing)
+COPY certs/ certs/
 
 # Expose port (Railway will set PORT env var)
 EXPOSE 8080
