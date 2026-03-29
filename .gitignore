@@ -26,12 +26,12 @@ instance/
 .env.*.local
 
 # Certificates and private keys
-certs/*.pem
-*.pem
-*.key
-*.crt
-private_key.*
-public_key.*
+# certs/*.pem
+# *.pem
+# *.key
+# *.crt
+# private_key.*
+# public_key.*
 
 # IDE
 .vscode/
