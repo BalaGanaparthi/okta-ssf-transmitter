@@ -76,9 +76,47 @@ def create_blueprint(jwt_handler, key_manager):
             return jsonify({'error': 'Invalid event type'}), 400
 
         try:
+            # Prepare extra fields based on event type
+            extra_fields = {}
+
+            # USER_RISK_CHANGE requires currentLevel and previousLevel
+            if event_type == 'USER_RISK_CHANGE':
+                current_level = data.get('currentLevel')
+                previous_level = data.get('previousLevel')
+
+                if not current_level or not previous_level:
+                    return jsonify({
+                        'error': 'currentLevel and previousLevel are required for USER_RISK_CHANGE event'
+                    }), 400
+
+                extra_fields['currentRiskLevel'] = current_level
+                extra_fields['previousRiskLevel'] = previous_level
+
+            # CREDENTIAL_COMPROMISE requires credential_type
+            elif event_type == 'CREDENTIAL_COMPROMISE':
+                credential_type = data.get('credentialType')
+
+                if not credential_type:
+                    return jsonify({
+                        'error': 'credentialType is required for CREDENTIAL_COMPROMISE event'
+                    }), 400
+
+                extra_fields['credential_type'] = credential_type
+
+            # IDENTIFIER_CHANGED can have new-value
+            elif event_type == 'IDENTIFIER_CHANGED':
+                new_value = data.get('newValue')
+                if new_value:
+                    extra_fields['new-value'] = new_value
+
             # Generate SET
             event_uri = get_event_uri(event_type)
-            set_token = bp.jwt_handler.generate_set(event_uri, subject, reason)
+            set_token = bp.jwt_handler.generate_set(
+                event_uri,
+                subject,
+                reason,
+                extra_fields if extra_fields else None
+            )
 
             # Send to Okta
             config = current_app.config

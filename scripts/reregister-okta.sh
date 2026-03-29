@@ -44,7 +44,7 @@ echo ""
 
 # Step 2: List existing providers
 echo "Step 2: Checking for existing SSF Transmitter provider..."
-PROVIDERS=$(curl -s -X GET "$OKTA_DOMAIN/api/v1/security/api/v1/security-events-providers" \
+PROVIDERS=$(curl -s -X GET "$OKTA_DOMAIN/security/api/v1/security-events-providers" \
   -H "Authorization: SSWS $OKTA_API_TOKEN" \
   -H "Accept: application/json")
 
@@ -64,7 +64,7 @@ if echo "$PROVIDERS" | jq empty 2>/dev/null; then
     fi
 
     # Find existing provider
-    PROVIDER_ID=$(echo "$PROVIDERS" | jq -r '.[] | select(.name=="SSF Transmitter") | .id' 2>/dev/null | head -1)
+    PROVIDER_ID=$(echo "$PROVIDERS" | jq -r '.[] | select(.name=="Railway SSF Transmitter") | .id' 2>/dev/null | head -1)
 
     if [ -n "$PROVIDER_ID" ]; then
         echo "✅ Found existing provider: $PROVIDER_ID"

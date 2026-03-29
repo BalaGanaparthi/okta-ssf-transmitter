@@ -253,6 +253,18 @@ textarea::placeholder {
     animation: slideIn 0.3s ease;
 }
 
+#dynamicFields {
+    animation: slideIn 0.3s ease;
+}
+
+#dynamicFields .form-group {
+    border-left: 3px solid var(--warning);
+    padding-left: 1rem;
+    background: rgba(245, 158, 11, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
 @keyframes slideIn {
     from {
         opacity: 0;

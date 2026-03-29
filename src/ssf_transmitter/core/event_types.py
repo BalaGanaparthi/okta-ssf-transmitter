@@ -120,11 +120,11 @@ EVENT_TYPES = {
     'USER_RISK_CHANGE': {
         'uri': 'https://schemas.okta.com/secevent/okta/event-type/user-risk-change',
         'label': 'User Risk Change (Okta)',
-        'description': 'User risk level has changed (e.g., low to high)',
+        'description': 'User risk level has changed (e.g., LOW → HIGH)',
         'category': 'Okta Specific',
         'fields': {
-            'current-level': 'required',
-            'previous-level': 'optional',
+            'currentRiskLevel': 'required',
+            'previousRiskLevel': 'required',
             'reason': 'optional'
         }
     }

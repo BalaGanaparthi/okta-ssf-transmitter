@@ -28,7 +28,7 @@ class JWTHandler:
         self.audience = audience
         self.key_id = key_id
 
-    def generate_set(self, event_type_uri, subject, reason=None):
+    def generate_set(self, event_type_uri, subject, reason=None, extra_fields=None):
         """
         Generate a Security Event Token (SET)
 
@@ -36,6 +36,7 @@ class JWTHandler:
             event_type_uri: Event type URI
             subject: User email (subject of the event)
             reason: Optional reason for the event
+            extra_fields: Additional event-specific fields
 
         Returns:
             str: Signed JWT token
@@ -71,6 +72,10 @@ class JWTHandler:
         # Add reason if provided
         if reason:
             event_data['reason'] = reason
+
+        # Add extra fields if provided
+        if extra_fields:
+            event_data.update(extra_fields)
 
         payload['events'][event_type_uri] = event_data
 
