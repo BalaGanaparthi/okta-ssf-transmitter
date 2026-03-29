@@ -386,7 +386,11 @@ function displayResponse(result) {
                 <p>Security event sent successfully to Okta.</p>
                 ${result.status ? `<p style="margin-top: 0.5rem;"><strong>Status:</strong> ${result.status}</p>` : ''}
                 ${result.okta_endpoint ? `<p><strong>Endpoint:</strong> <code style="font-size: 0.75rem;">${result.okta_endpoint}</code></p>` : ''}
+                ${result.transmission_time ? `<p><strong>Transmission Time:</strong> ${result.transmission_time.toFixed(2)}s</p>` : ''}
                 ${result.data ? `<div class="response-data">${JSON.stringify(result.data, null, 2)}</div>` : ''}
+                <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--success); border-radius: 8px; font-size: 0.875rem;">
+                    ℹ️ <strong>Event logged in Okta:</strong> Check Reports → System Log in Okta Admin Console
+                </div>
             </div>
         `;
 
@@ -400,9 +404,18 @@ function displayResponse(result) {
                 <span class="response-label">❌ Error</span>
                 ${result.status ? `<p><strong>Status:</strong> ${result.status}</p>` : ''}
                 ${result.okta_endpoint ? `<p><strong>Endpoint:</strong> <code style="font-size: 0.75rem;">${result.okta_endpoint}</code></p>` : ''}
+                ${result.transmission_time ? `<p><strong>Transmission Time:</strong> ${result.transmission_time.toFixed(2)}s</p>` : ''}
                 ${result.error ? `<p><strong>Error:</strong> ${typeof result.error === 'object' ? JSON.stringify(result.error) : result.error}</p>` : ''}
                 ${result.details ? `<p><strong>Details:</strong> ${result.details}</p>` : ''}
                 ${result.error && typeof result.error === 'object' ? `<div class="response-data">${JSON.stringify(result.error, null, 2)}</div>` : ''}
+                ${result.okta_response ? `
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--error); border-radius: 8px; font-size: 0.875rem;">
+                        <strong>⚠️ Why this error occurred:</strong><br>
+                        The SET was transmitted to Okta, but Okta rejected it due to validation errors.<br><br>
+                        <strong>Note:</strong> Rejected events do NOT appear in Okta System Log. Only successfully accepted events (status 202) are logged by Okta.<br><br>
+                        Check the JWT Payload below to verify all required fields are present with correct names.
+                    </div>
+                ` : ''}
             </div>
         `;
 

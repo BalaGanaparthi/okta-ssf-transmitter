@@ -33,9 +33,19 @@ class OktaClient:
         Returns:
             dict: Response dictionary with success status
         """
-        logger.info(f"Sending SET to {self.endpoint}")
+        import time
+        start_time = time.time()
+
+        logger.info("=" * 70)
+        logger.info("🚀 TRANSMITTING TO OKTA")
+        logger.info("=" * 70)
+        logger.info(f"Endpoint: {self.endpoint}")
+        logger.info(f"Token length: {len(set_token)} bytes")
+        logger.info(f"Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
         try:
+            logger.info("Making HTTP POST request to Okta...")
+
             response = requests.post(
                 self.endpoint,
                 data=set_token,
@@ -43,40 +53,71 @@ class OktaClient:
                 timeout=self.timeout
             )
 
+            elapsed = time.time() - start_time
+            logger.info(f"Received response from Okta in {elapsed:.2f}s")
+
             response.raise_for_status()
 
-            logger.info(f"SET accepted by Okta (Status: {response.status_code})")
+            logger.info("=" * 70)
+            logger.info(f"✅ SUCCESS: SET accepted by Okta")
+            logger.info(f"Status Code: {response.status_code}")
+            logger.info(f"Response: {response.text[:200] if response.text else 'No content'}")
+            logger.info("=" * 70)
 
             return {
                 'success': True,
                 'status': response.status_code,
-                'data': response.json() if response.content else None
+                'data': response.json() if response.content else None,
+                'transmission_time': elapsed
             }
 
         except requests.exceptions.HTTPError as e:
-            logger.error(f"HTTP error sending SET: {e.response.status_code}")
-            logger.error(f"Response from Okta: {e.response.text}")
+            elapsed = time.time() - start_time
+
+            logger.error("=" * 70)
+            logger.error(f"❌ OKTA REJECTED SET")
+            logger.error("=" * 70)
+            logger.error(f"HTTP Status: {e.response.status_code}")
+            logger.error(f"Response Time: {elapsed:.2f}s")
+            logger.error(f"Full Response: {e.response.text}")
+
             error_data = None
             try:
                 error_data = e.response.json()
-                logger.error(f"Okta error details: {error_data}")
+                logger.error(f"Parsed Error: {error_data}")
             except:
                 error_data = e.response.text
+
+            logger.error("=" * 70)
+            logger.error("⚠️  NOTE: Rejected events do NOT appear in Okta System Log")
+            logger.error("⚠️  Only successfully accepted events (202) are logged by Okta")
+            logger.error("=" * 70)
 
             return {
                 'success': False,
                 'status': e.response.status_code,
                 'error': error_data,
                 'okta_response': True,  # Flag to confirm this is from Okta, not hardcoded
-                'endpoint': self.endpoint
+                'endpoint': self.endpoint,
+                'transmission_time': elapsed,
+                'note': 'Rejected events do not appear in Okta System Log'
             }
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"Request failed: {str(e)}")
+            elapsed = time.time() - start_time
+
+            logger.error("=" * 70)
+            logger.error(f"❌ NETWORK ERROR")
+            logger.error("=" * 70)
+            logger.error(f"Error: {str(e)}")
+            logger.error(f"Time elapsed: {elapsed:.2f}s")
+            logger.error("=" * 70)
+
             return {
                 'success': False,
                 'error': 'Request failed',
-                'details': str(e)
+                'details': str(e),
+                'transmission_time': elapsed
             }
 
     def validate_connection(self):
