@@ -39,9 +39,14 @@ def test_event_types_endpoint(client):
     response = client.get('/api/event-types')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert 'CREDENTIAL_CHANGE_REQUIRED' in data
-    assert 'ACCOUNT_DISABLED' in data
-    assert 'ACCOUNT_ENABLED' in data
+    # Verify all 6 supported event types
+    assert 'DEVICE_RISK_CHANGE' in data
+    assert 'IP_CHANGE' in data
+    assert 'USER_RISK_CHANGE' in data
+    assert 'DEVICE_COMPLIANCE_CHANGE' in data
+    assert 'SESSION_REVOKED' in data
+    assert 'IDENTIFIER_CHANGED' in data
+    assert len(data) == 6
 
 
 def test_send_event_missing_data(client):

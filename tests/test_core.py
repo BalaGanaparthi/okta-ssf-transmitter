@@ -8,14 +8,19 @@ from src.ssf_transmitter.core import EVENT_TYPES, get_event_type, validate_event
 
 def test_event_types_defined():
     """Test that event types are properly defined"""
-    assert 'CREDENTIAL_CHANGE_REQUIRED' in EVENT_TYPES
-    assert 'ACCOUNT_DISABLED' in EVENT_TYPES
-    assert 'ACCOUNT_ENABLED' in EVENT_TYPES
+    # 6 events supported by Okta
+    assert 'DEVICE_RISK_CHANGE' in EVENT_TYPES
+    assert 'IP_CHANGE' in EVENT_TYPES
+    assert 'USER_RISK_CHANGE' in EVENT_TYPES
+    assert 'DEVICE_COMPLIANCE_CHANGE' in EVENT_TYPES
+    assert 'SESSION_REVOKED' in EVENT_TYPES
+    assert 'IDENTIFIER_CHANGED' in EVENT_TYPES
+    assert len(EVENT_TYPES) == 6
 
 
 def test_get_event_type():
     """Test getting event type by key"""
-    event = get_event_type('CREDENTIAL_CHANGE_REQUIRED')
+    event = get_event_type('USER_RISK_CHANGE')
     assert event is not None
     assert 'uri' in event
     assert 'label' in event
@@ -24,7 +29,8 @@ def test_get_event_type():
 
 def test_validate_event_type():
     """Test event type validation"""
-    assert validate_event_type('CREDENTIAL_CHANGE_REQUIRED') is True
+    assert validate_event_type('USER_RISK_CHANGE') is True
+    assert validate_event_type('IDENTIFIER_CHANGED') is True
     assert validate_event_type('INVALID_TYPE') is False
 
 

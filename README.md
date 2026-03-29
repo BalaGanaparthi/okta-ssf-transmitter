@@ -9,15 +9,15 @@ A production-grade web application for transmitting Security Event Tokens (SETs)
 ## 🌟 Features
 
 - **Modern Web UI** - Beautiful interface with dynamic form generation
-- **15 Event Types** - Full RISC profile + Okta-specific events
+- **6 Supported Event Types** - Only events Okta officially supports
 - **Dynamic Forms** - UI automatically adapts to each event type
-- **Smart Dropdowns** - Enum values pre-populated (risk levels, credential types)
+- **Smart Dropdowns** - Enum values pre-populated (risk levels, compliance status, IP addresses)
 - **JWT Visibility** - See complete JWT token, header, and payload
 - **JWT.io Integration** - One-click token inspection
 - **DateTime Conversion** - Automatic Unix timestamp conversion
 - **JWKS Endpoint** - Public key at `/.well-known/jwks.json`
 - **Docker Ready** - Containerized for Railway deployment
-- **24 Tests** - Comprehensive test coverage
+- **Enhanced Logging** - Detailed transmission logs with timestamps
 
 ## 🚀 Quick Start
 
@@ -66,31 +66,19 @@ PORT=8080
 FLASK_ENV=production
 ```
 
-## 🎯 Supported Event Types (15 Total)
+## 🎯 Supported Event Types (6 Total)
 
-### Account Security (5)
-- Credential Change Required
-- Credential Compromise (with credential type, timestamps)
-- Account Disabled (with reason dropdown)
-- Account Enabled
-- Account Purged
+### Okta Events (3)
+- **Device Risk Change** - Device risk level changes with current/previous levels
+- **IP Change** - User IP address changes with current/previous IPs
+- **User Risk Change** - User risk level changes with current/previous levels
 
-### Identifier Management (2)
-- Identifier Changed (with new value)
-- Identifier Recycled
+### CAEP Events (2)
+- **Device Compliance Change** - Device compliance status changes
+- **Session Revoked** - User session revocation with optional session ID
 
-### Recovery (2)
-- Recovery Activated
-- Recovery Information Changed
-
-### Opt-In/Out (4)
-- Opt In, Opt Out Initiated, Opt Out Cancelled, Opt Out Effective
-
-### Session (1)
-- Sessions Revoked
-
-### Okta Specific (1)
-- User Risk Change (with risk level dropdowns)
+### RISC Events (1)
+- **Identifier Changed** - User identifier (email/phone) modification
 
 ## 🔌 API Endpoints
 
