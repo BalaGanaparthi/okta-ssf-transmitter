@@ -53,41 +53,57 @@ class JWTHandler:
         # Current timestamp
         iat = int(time.time())
 
-        # Build SET payload
-        payload = {
-            'iss': self.issuer,
-            'jti': jti,
-            'iat': iat,
-            'aud': self.audience,
-            'events': {}
-        }
+        # Build SET payload in exact order Okta expects
+        payload = {}
+        payload['aud'] = self.audience
+        payload['events'] = {}
 
-        # Build subject with BOTH user and device (required by Okta)
-        event_data = {
-            'subject': {
-                'user': {
-                    'format': 'email',
-                    'email': subject
-                }
-            }
-        }
+        # Build event_data in exact order Okta expects
+        event_data = {}
 
-        # Add device to subject if provided (required by Okta)
+        # 1. subject (device first, then user)
+        event_data['subject'] = {}
         if device_id:
             event_data['subject']['device'] = {
                 'format': 'opaque',
                 'id': device_id,
-                'subscriber': self.audience  # Okta requires subscriber field (Okta domain)
+                'subscriber': self.audience
             }
+        event_data['subject']['user'] = {
+            'format': 'email',
+            'email': subject
+        }
 
-        # NOTE: Do NOT add 'reason' at root level for Okta events
-        # Okta expects reason_admin and reason_user as language objects
-
-        # Add extra fields if provided
+        # 2-7. Add extra fields in order if they exist
+        # These will be in the order they're added
         if extra_fields:
-            event_data.update(extra_fields)
+            # Common order for most events
+            ordered_field_names = [
+                'event_timestamp',
+                'initiating_entity',
+                'reason_admin',
+                'reason_user',
+                'previous_level',
+                'current_level',
+                'previous_ip_address',
+                'current_ip_address',
+                'previous_status',
+                'current_status',
+                'current_ip',
+                'last_known_ip',
+                'current_user_agent',
+                'last_known_user_agent',
+                'new-value'
+            ]
+
+            for field_name in ordered_field_names:
+                if field_name in extra_fields:
+                    event_data[field_name] = extra_fields[field_name]
 
         payload['events'][event_type_uri] = event_data
+        payload['iat'] = iat
+        payload['iss'] = self.issuer
+        payload['jti'] = jti
 
         # JWT header
         headers = {
