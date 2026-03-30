@@ -8,6 +8,7 @@ A production-grade web application for transmitting Security Event Tokens (SETs)
 
 ## 🌟 Features
 
+### Transmitter (Port 8080)
 - **Modern Web UI** - Beautiful interface with dynamic form generation
 - **6 Supported Event Types** - Only events Okta officially supports
 - **Dynamic Forms** - UI automatically adapts to each event type
@@ -19,19 +20,45 @@ A production-grade web application for transmitting Security Event Tokens (SETs)
 - **Docker Ready** - Containerized for Railway deployment
 - **Enhanced Logging** - Detailed transmission logs with timestamps
 
+### Receiver (Port 8081)
+- **Receive SETs from Okta** - Accept incoming security event tokens
+- **Formatted Console Logs** - Beautiful boxed output for each event
+- **JWT Validation** - Decode and validate incoming tokens
+- **Event History** - Track all received events
+- **REST API** - View received events via HTTP
+
 ## 🚀 Quick Start
 
-### Local Development
+### Transmitter (Send SETs to Okta)
 
 ```bash
-# Run development server
+# Start transmitter
 ./scripts/dev.sh
 
-# Or using Make
-make run-dev
-
-# Access the application
+# Access web UI
 open http://localhost:8080
+```
+
+### Receiver (Receive SETs from Okta)
+
+```bash
+# Start receiver
+./scripts/receiver.sh
+
+# Receiver listens on port 8081
+# Endpoint: http://localhost:8081/receive-set
+```
+
+### Run Both (Full SSF Flow)
+
+**Terminal 1:**
+```bash
+./scripts/dev.sh      # Transmitter on :8080
+```
+
+**Terminal 2:**
+```bash
+./scripts/receiver.sh  # Receiver on :8081
 ```
 
 ### Deploy to Railway
