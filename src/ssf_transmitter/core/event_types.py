@@ -200,8 +200,8 @@ EVENT_TYPES = {
         'category': 'CAEP Events',
         'extra_fields': [
             {'name': 'device_id', 'required': True},
-            {'name': 'current_status', 'required': True},
-            {'name': 'previous_status', 'required': False},
+            {'name': 'current_level', 'required': True},
+            {'name': 'previous_level', 'required': False},
             {'name': 'event_timestamp', 'required': False},
             {'name': 'initiating_entity', 'required': False},
             {'name': 'reason_admin', 'required': False},

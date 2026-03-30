@@ -72,11 +72,12 @@ class JWTHandler:
             }
         }
 
-        # Add device to subject if provided
+        # Add device to subject if provided (required by Okta)
         if device_id:
             event_data['subject']['device'] = {
                 'format': 'opaque',
-                'id': device_id
+                'id': device_id,
+                'subscriber': self.audience  # Okta requires subscriber field (Okta domain)
             }
 
         # NOTE: Do NOT add 'reason' at root level for Okta events
