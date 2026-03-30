@@ -1,0 +1,134 @@
+{
+  "aud": "https://receiverexample.okta.com/",
+  "events": {
+    "https://schemas.okta.com/secevent/okta/event-type/device-risk-change": {
+      "subject": {
+        "device": {
+          "format": "opaque",
+          "id": "device-identifier-001"
+        },
+        "user": {
+          "format": "email",
+          "email": "john@doe.net"
+        }
+      },
+      "event_timestamp": 1702448550,
+      "initiating_entity": "admin",
+      "reason_admin": {
+        "en": "Event message example"
+      },
+      "reason_user": {
+        "en": "Event message example"
+      },
+      "previous_level": "medium",
+      "current_level": "low"
+    },
+    "https://schemas.okta.com/secevent/okta/event-type/ip-change": {
+      "subject": {
+        "device": {
+          "format": "opaque",
+          "id": "device-identifier-001"
+        },
+        "user": {
+          "format": "email",
+          "email": "john@doe.net"
+        }
+      },
+      "event_timestamp": 1702448550,
+      "initiating_entity": "admin",
+      "reason_admin": {
+        "en": "Event message example"
+      },
+      "reason_user": {
+        "en": "Event message example"
+      },
+      "previous_ip_address": "123.45.67.8",
+      "current_ip_address": "123.4.5.6"
+    },
+    "https://schemas.okta.com/secevent/okta/event-type/user-risk-change": {
+      "subject": {
+        "device": {
+          "format": "opaque",
+          "id": "device-identifier-001"
+        },
+        "user": {
+          "format": "email",
+          "email": "john@doe.net"
+        }
+      },
+      "event_timestamp": 1702448550,
+      "initiating_entity": "admin",
+      "reason_admin": {
+        "en": "Event message example"
+      },
+      "reason_user": {
+        "en": "Event message example"
+      },
+      "previous_level": "medium",
+      "current_level": "low"
+    },
+    "https://schemas.openid.net/secevent/caep/event-type/device-compliance-change": {
+      "subject": {
+        "device": {
+          "format": "opaque",
+          "id": "device-identifier-001"
+        },
+        "user": {
+          "format": "email",
+          "email": "john@doe.net"
+        }
+      },
+      "event_timestamp": 1702448550,
+      "initiating_entity": "admin",
+      "reason_admin": {
+        "en": "Event message example"
+      },
+      "reason_user": {
+        "en": "Event message example"
+      },
+      "previous_status": "compliant",
+      "current_status": "non-compliant"
+    },
+    "https://schemas.openid.net/secevent/caep/event-type/session-revoked": {
+      "subject": {
+        "device": {
+          "format": "opaque",
+          "id": "device-identifier-001"
+        },
+        "user": {
+          "format": "email",
+          "email": "john@doe.net"
+        }
+      },
+      "event_timestamp": 1702448550,
+      "initiating_entity": "admin",
+      "reason_admin": {
+        "en": "Event message example"
+      },
+      "reason_user": {
+        "en": "Event message example"
+      },
+      "last_known_ip": "123.4.5.6",
+      "last_known_user_agent": "LastUserAgent",
+      "current_ip": "123.4.5.6",
+      "current_user_agent": "CurrentUserAgent"
+    },
+    "https://schemas.openid.net/secevent/risc/event-type/identifier-changed": {
+      "subject": {
+        "device": {
+          "format": "opaque",
+          "id": "device-identifier-001"
+        },
+        "user": {
+          "format": "email",
+          "email": "john@doe.net"
+        }
+      },
+      "event_timestamp": 1702448550,
+      "new-value": "new.email@okta.example.com"
+    }
+  },
+  "iat": 1702448550,
+  "iss": "https://transmitter.example.com",
+  "jti": "24c63fb56f ... a9fa24"
+}

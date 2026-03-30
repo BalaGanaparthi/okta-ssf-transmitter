@@ -61,39 +61,38 @@ class JWTHandler:
         # Build event_data in exact order Okta expects
         event_data = {}
 
-        # 1. subject (device first, then user)
+        # 1. subject (device first, then user) - NO subscriber field
         event_data['subject'] = {}
         if device_id:
             event_data['subject']['device'] = {
                 'format': 'opaque',
-                'id': device_id,
-                'subscriber': self.audience
+                'id': device_id
+                # NO subscriber field per Okta schema
             }
         event_data['subject']['user'] = {
             'format': 'email',
             'email': subject
         }
 
-        # 2-7. Add extra fields in order if they exist
-        # These will be in the order they're added
+        # 2-N. Add extra fields in exact order Okta expects
         if extra_fields:
-            # Common order for most events
+            # Exact order per Okta schema documentation
             ordered_field_names = [
                 'event_timestamp',
                 'initiating_entity',
                 'reason_admin',
                 'reason_user',
-                'previous_level',
+                'previous_level',           # For DEVICE_RISK_CHANGE, USER_RISK_CHANGE
                 'current_level',
-                'previous_ip_address',
+                'previous_ip_address',      # For IP_CHANGE
                 'current_ip_address',
-                'previous_status',
+                'previous_status',          # For DEVICE_COMPLIANCE_CHANGE
                 'current_status',
-                'current_ip',
-                'last_known_ip',
-                'current_user_agent',
+                'last_known_ip',           # For SESSION_REVOKED (note order!)
                 'last_known_user_agent',
-                'new-value'
+                'current_ip',
+                'current_user_agent',
+                'new-value'                # For IDENTIFIER_CHANGED
             ]
 
             for field_name in ordered_field_names:
