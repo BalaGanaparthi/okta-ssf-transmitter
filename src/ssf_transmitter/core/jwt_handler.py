@@ -28,14 +28,15 @@ class JWTHandler:
         self.audience = audience
         self.key_id = key_id
 
-    def generate_set(self, event_type_uri, subject, reason=None, extra_fields=None):
+    def generate_set(self, event_type_uri, subject, device_id=None, reason=None, extra_fields=None):
         """
         Generate a Security Event Token (SET)
 
         Args:
             event_type_uri: Event type URI
             subject: User email (subject of the event)
-            reason: Optional reason for the event
+            device_id: Device identifier (required by Okta)
+            reason: Optional reason for the event (DEPRECATED - use reason_admin/reason_user in extra_fields)
             extra_fields: Additional event-specific fields
 
         Returns:
@@ -61,17 +62,25 @@ class JWTHandler:
             'events': {}
         }
 
-        # Add the specific event
+        # Build subject with BOTH user and device (required by Okta)
         event_data = {
             'subject': {
-                'format': 'email',
-                'email': subject
+                'user': {
+                    'format': 'email',
+                    'email': subject
+                }
             }
         }
 
-        # Add reason if provided
-        if reason:
-            event_data['reason'] = reason
+        # Add device to subject if provided
+        if device_id:
+            event_data['subject']['device'] = {
+                'format': 'opaque',
+                'id': device_id
+            }
+
+        # NOTE: Do NOT add 'reason' at root level for Okta events
+        # Okta expects reason_admin and reason_user as language objects
 
         # Add extra fields if provided
         if extra_fields:

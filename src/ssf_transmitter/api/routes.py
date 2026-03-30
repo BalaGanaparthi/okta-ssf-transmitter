@@ -119,24 +119,25 @@ def create_blueprint(jwt_handler, key_manager):
 
                         extra_fields[field_name] = field_value
 
-            # Check for general reason field (from textarea)
-            if 'reason' not in extra_fields:
-                general_reason = data.get('reason')
+            # Extract device_id (required by Okta for all events)
+            device_id = extra_fields.pop('device_id', None)
 
-            # Special handling for Okta events - format reason fields as language objects
-            if event_type == 'USER_RISK_CHANGE':
-                # Convert reason_admin and reason_user to language objects if present
-                if 'reason_admin' in extra_fields and isinstance(extra_fields['reason_admin'], str):
-                    extra_fields['reason_admin'] = {'en': extra_fields['reason_admin']}
-                if 'reason_user' in extra_fields and isinstance(extra_fields['reason_user'], str):
-                    extra_fields['reason_user'] = {'en': extra_fields['reason_user']}
+            # Convert ALL reason fields to language objects (Okta requires this format)
+            if 'reason_admin' in extra_fields and isinstance(extra_fields['reason_admin'], str):
+                extra_fields['reason_admin'] = {'en': extra_fields['reason_admin']}
+            if 'reason_user' in extra_fields and isinstance(extra_fields['reason_user'], str):
+                extra_fields['reason_user'] = {'en': extra_fields['reason_user']}
 
-            # Generate SET
+            # NOTE: Do NOT use general_reason for Okta events
+            # Okta events use reason_admin and reason_user as language objects
+
+            # Generate SET with proper Okta structure
             event_uri = get_event_uri(event_type)
             set_token = bp.jwt_handler.generate_set(
                 event_uri,
                 subject,
-                general_reason,
+                device_id,  # Pass device_id (required)
+                None,  # Don't use general reason
                 extra_fields if extra_fields else None
             )
 

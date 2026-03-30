@@ -36,13 +36,13 @@ FIELD_SCHEMAS = {
         'placeholder': 'Select previous risk level...'
     },
     # IP address fields
-    'current_ip': {
+    'current_ip_address': {
         'label': 'Current IP Address',
         'type': 'text',
         'hint': 'Current IP address of the user',
         'placeholder': 'e.g., 192.168.1.100'
     },
-    'previous_ip': {
+    'previous_ip_address': {
         'label': 'Previous IP Address',
         'type': 'text',
         'hint': 'Previous IP address of the user',
@@ -55,7 +55,7 @@ FIELD_SCHEMAS = {
         'hint': 'Current device compliance status',
         'options': [
             {'value': 'compliant', 'label': 'Compliant'},
-            {'value': 'not_compliant', 'label': 'Not Compliant'}
+            {'value': 'non-compliant', 'label': 'Non-Compliant'}
         ],
         'placeholder': 'Select status...'
     },
@@ -65,16 +65,41 @@ FIELD_SCHEMAS = {
         'hint': 'Previous device compliance status',
         'options': [
             {'value': 'compliant', 'label': 'Compliant'},
-            {'value': 'not_compliant', 'label': 'Not Compliant'}
+            {'value': 'non-compliant', 'label': 'Non-Compliant'}
         ],
         'placeholder': 'Select status...'
     },
-    # Session fields
-    'session_id': {
-        'label': 'Session ID',
+    # Session revoked fields
+    'current_ip': {
+        'label': 'Current IP Address',
         'type': 'text',
-        'hint': 'The session identifier to revoke',
-        'placeholder': 'e.g., session_abc123xyz'
+        'hint': 'Current IP address for the session',
+        'placeholder': 'e.g., 192.168.1.100'
+    },
+    'last_known_ip': {
+        'label': 'Last Known IP Address',
+        'type': 'text',
+        'hint': 'Last known IP address',
+        'placeholder': 'e.g., 10.0.0.50'
+    },
+    'current_user_agent': {
+        'label': 'Current User Agent',
+        'type': 'text',
+        'hint': 'Current browser/client user agent',
+        'placeholder': 'e.g., Mozilla/5.0...'
+    },
+    'last_known_user_agent': {
+        'label': 'Last Known User Agent',
+        'type': 'text',
+        'hint': 'Last known user agent',
+        'placeholder': 'e.g., Chrome/120.0.0.0'
+    },
+    # Device identifier fields
+    'device_id': {
+        'label': 'Device ID',
+        'type': 'text',
+        'hint': 'Device identifier',
+        'placeholder': 'e.g., device-identifier-001'
     },
     # Identifier fields
     'new-value': {
@@ -125,6 +150,7 @@ EVENT_TYPES = {
         'description': 'Signal changes in device risk level (e.g., trusted device becomes suspicious)',
         'category': 'Okta Events',
         'extra_fields': [
+            {'name': 'device_id', 'required': True},
             {'name': 'current_level', 'required': True},
             {'name': 'previous_level', 'required': True},
             {'name': 'event_timestamp', 'required': False},
@@ -140,11 +166,13 @@ EVENT_TYPES = {
         'description': 'User IP address has changed (e.g., user logged in from new location)',
         'category': 'Okta Events',
         'extra_fields': [
-            {'name': 'current_ip', 'required': True},
-            {'name': 'previous_ip', 'required': False},
+            {'name': 'device_id', 'required': True},
+            {'name': 'current_ip_address', 'required': True},
+            {'name': 'previous_ip_address', 'required': False},
             {'name': 'event_timestamp', 'required': False},
             {'name': 'initiating_entity', 'required': False},
-            {'name': 'reason_admin', 'required': False}
+            {'name': 'reason_admin', 'required': False},
+            {'name': 'reason_user', 'required': False}
         ]
     },
 
@@ -154,6 +182,7 @@ EVENT_TYPES = {
         'description': 'Signal changes in user risk level (e.g., low → high)',
         'category': 'Okta Events',
         'extra_fields': [
+            {'name': 'device_id', 'required': True},
             {'name': 'current_level', 'required': True},
             {'name': 'previous_level', 'required': True},
             {'name': 'event_timestamp', 'required': False},
@@ -170,10 +199,13 @@ EVENT_TYPES = {
         'description': 'Device compliance status has changed (e.g., device no longer meets security requirements)',
         'category': 'CAEP Events',
         'extra_fields': [
+            {'name': 'device_id', 'required': True},
             {'name': 'current_status', 'required': True},
             {'name': 'previous_status', 'required': False},
             {'name': 'event_timestamp', 'required': False},
-            {'name': 'reason_admin', 'required': False}
+            {'name': 'initiating_entity', 'required': False},
+            {'name': 'reason_admin', 'required': False},
+            {'name': 'reason_user', 'required': False}
         ]
     },
 
@@ -183,7 +215,11 @@ EVENT_TYPES = {
         'description': 'User session has been revoked (e.g., force logout due to security event)',
         'category': 'CAEP Events',
         'extra_fields': [
-            {'name': 'session_id', 'required': False},
+            {'name': 'device_id', 'required': True},
+            {'name': 'current_ip', 'required': False},
+            {'name': 'last_known_ip', 'required': False},
+            {'name': 'current_user_agent', 'required': False},
+            {'name': 'last_known_user_agent', 'required': False},
             {'name': 'event_timestamp', 'required': False},
             {'name': 'initiating_entity', 'required': False},
             {'name': 'reason_admin', 'required': False},
@@ -198,6 +234,7 @@ EVENT_TYPES = {
         'description': 'User identifier (email/phone) has been modified',
         'category': 'RISC Events',
         'extra_fields': [
+            {'name': 'device_id', 'required': True},
             {'name': 'new-value', 'required': False},
             {'name': 'event_timestamp', 'required': False}
         ]
